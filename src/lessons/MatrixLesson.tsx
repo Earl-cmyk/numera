@@ -5,6 +5,7 @@ import { Grid3X3, ArrowRightLeft, Square, Binary, Calculator } from 'lucide-reac
 import { cn } from '../lib/utils';
 import StepViewer from '../components/StepViewer';
 import { MatrixGrid, MatrixActionDisplay } from '../components/MatrixOps';
+import MathRenderer from '../components/MathRenderer';
 
 type MatrixMode = 'det' | 'ops' | 'types' | 'inverse' | 'systems';
 
@@ -53,30 +54,45 @@ export default function MatrixLesson() {
         },
         {
           title: 'Main Diagonal',
-          description: `Multiply ${matrix[0][0]} * ${matrix[1][1]} = ${matrix[0][0] * matrix[1][1]}`,
+          description: 'Multiply the main diagonal elements',
           content: (
-            <MatrixGrid 
-               data={matrix} 
-               highlights={{ elements: [[0,0], [1,1]], color: 'bg-blue-500 text-white' }}
-            />
+            <div className="space-y-4">
+              <MatrixGrid 
+                 data={matrix} 
+                 highlights={{ elements: [[0,0], [1,1]], color: 'bg-blue-500 text-white' }}
+              />
+              <div className="text-center">
+                <MathRenderer>{`${matrix[0][0]} \times ${matrix[1][1]} = ${matrix[0][0] * matrix[1][1]}`}</MathRenderer>
+              </div>
+            </div>
           )
         },
         {
           title: 'Off-Diagonal',
-          description: `Multiply ${matrix[0][1]} * ${matrix[1][0]} = ${matrix[0][1] * matrix[1][0]}`,
+          description: 'Multiply the off-diagonal elements',
           content: (
-            <MatrixGrid 
-               data={matrix} 
-               highlights={{ elements: [[0,1], [1,0]], color: 'bg-orange-500 text-white' }}
-            />
+            <div className="space-y-4">
+              <MatrixGrid 
+                 data={matrix} 
+                 highlights={{ elements: [[0,1], [1,0]], color: 'bg-orange-500 text-white' }}
+              />
+              <div className="text-center">
+                <MathRenderer>{`${matrix[0][1]} \times ${matrix[1][0]} = ${matrix[0][1] * matrix[1][0]}`}</MathRenderer>
+              </div>
+            </div>
           )
         },
         {
           title: 'Final Calculation',
-          description: `(${matrix[0][0]} * ${matrix[1][1]}) - (${matrix[0][1]} * ${matrix[1][0]}) = ${matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]}`,
+          description: 'Subtract the off-diagonal product from the main diagonal product',
           content: (
-            <div className="text-4xl font-mono font-bold text-blue-600">
-               det(A) = {(matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]).toFixed(2)}
+            <div className="space-y-4">
+              <div className="text-center">
+                <MathRenderer display>{`(${matrix[0][0]} \times ${matrix[1][1]}) - (${matrix[0][1]} \times ${matrix[1][0]}) = ${matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]}`}</MathRenderer>
+              </div>
+              <div className="text-4xl font-mono font-bold text-blue-600 text-center">
+                det(A) = {(matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]).toFixed(2)}
+              </div>
             </div>
           )
         }
@@ -87,8 +103,15 @@ export default function MatrixLesson() {
       return [
         {
           title: 'Cofactor Expansion',
-          description: 'Expanding along the first row. Determinant = a₁₁C₁₁ + a₁₂C₁₂ + a₁₃C₁₃',
-          content: <MatrixGrid data={matrix} highlights={{ rows: [0] }} />
+          description: 'Expanding along the first row using the formula det(A) = a₁₁C₁₁ + a₁₂C₁₂ + a₁₃C₁₃',
+          content: (
+            <div className="space-y-4">
+              <MatrixGrid data={matrix} highlights={{ rows: [0] }} />
+              <div className="text-center">
+                <MathRenderer display>{`det(A) = a_{11}C_{11} + a_{12}C_{12} + a_{13}C_{13}`}</MathRenderer>
+              </div>
+            </div>
+          )
         },
         ...[0, 1, 2].flatMap(col => [
           {
@@ -134,8 +157,8 @@ export default function MatrixLesson() {
                 data={matrix} 
                 highlights={{ elements: [[0,0], [1,0], [2,0], [3,0]], color: 'bg-blue-100' }} 
               />
-              <div className="text-sm text-gray-600">
-                Row operations: R₂ = R₂ - (R₁ × {matrix[1][0]}/{matrix[0][0]}), etc.
+              <div className="text-sm text-gray-600 text-center">
+                <MathRenderer>{`R_2 = R_2 - (R_1 \times \frac{${matrix[1][0]}}{${matrix[0][0]}}), \text{ etc.}`}</MathRenderer>
               </div>
             </div>
           )
@@ -149,7 +172,7 @@ export default function MatrixLesson() {
                 The determinant is the product of diagonal elements in upper triangular form.
               </div>
               <div className="font-mono text-center">
-                det(A) = {matrix[0][0]} × {matrix[1][1]} × {matrix[2][2]} × {matrix[3][3]}
+                <MathRenderer display>{`det(A) = ${matrix[0][0]} \times ${matrix[1][1]} \times ${matrix[2][2]} \times ${matrix[3][3]}`}</MathRenderer>
               </div>
             </div>
           )
@@ -234,27 +257,34 @@ export default function MatrixLesson() {
         steps.push(
           {
             title: 'Check Determinant',
-            description: `det(A) = ${a} * ${d} - ${b} * ${c} = ${determinant}`,
-            content: <MatrixGrid data={matrix} highlights={{ color: 'bg-blue-100' }} />
-          },
-          {
-            title: 'Apply 2x2 Formula',
-            description: `A⁻¹ = (1/${determinant}) * [[${d}, ${-b}], [${-c}, ${a}]]`,
+            description: 'Calculate the determinant first',
             content: (
               <div className="space-y-4">
+                <MatrixGrid data={matrix} highlights={{ color: 'bg-blue-100' }} />
                 <div className="text-center">
-                  <div className="font-mono text-lg">1/{determinant} ×</div>
-                  <MatrixGrid 
-                    data={[[d, -b], [-c, a]]} 
-                    highlights={{ color: 'bg-green-100' }}
-                  />
+                  <MathRenderer display>{`det(A) = ${a} \times ${d} - ${b} \times ${c} = ${determinant}`}</MathRenderer>
                 </div>
               </div>
             )
           },
           {
+            title: 'Apply 2x2 Formula',
+            description: 'Apply the 2x2 inverse formula',
+            content: (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <MathRenderer display>{`A^{-1} = \frac{1}{${determinant}} \begin{bmatrix} ${d} & ${-b} \\ ${-c} & ${a} \end{bmatrix}`}</MathRenderer>
+                </div>
+                <MatrixGrid 
+                  data={[[d, -b], [-c, a]]} 
+                  highlights={{ color: 'bg-green-100' }}
+                />
+              </div>
+            )
+          },
+          {
             title: 'Final Inverse',
-            description: `A⁻¹ = [[${(d * invDet).toFixed(4)}, ${(-b * invDet).toFixed(4)}], [${(-c * invDet).toFixed(4)}, ${(a * invDet).toFixed(4)}]]`,
+            description: 'Final inverse matrix computed',
             content: (
               <MatrixGrid 
                 data={[[d * invDet, -b * invDet], [-c * invDet, a * invDet]]} 
@@ -274,7 +304,9 @@ export default function MatrixLesson() {
               <MatrixGrid data={matrix} highlights={{ color: 'bg-blue-100' }} />
               <div className="text-center text-gray-600">
                 <div>Augment with 4×4 identity matrix</div>
-                <div className="font-mono text-sm mt-2">[A | I₄] → [I₄ | A⁻¹]</div>
+                <div className="font-mono text-sm mt-2">
+                <MathRenderer>{`[A | I_4] \rightarrow [I_4 | A^{-1}]`}</MathRenderer>
+              </div>
               </div>
             </div>
           )
@@ -284,9 +316,9 @@ export default function MatrixLesson() {
           description: 'Perform elementary row operations to transform A to I₄',
           content: (
             <div className="space-y-3 text-sm text-gray-600">
-              <div>1. Create zeros below first pivot (${matrix[0][0]})</div>
-              <div>2. Create zeros below second pivot (${matrix[1][1]})</div>
-              <div>3. Create zeros below third pivot (${matrix[2][2]})</div>
+              <div>1. Create zeros below first pivot (<MathRenderer>{`${matrix[0][0]}`}</MathRenderer>)</div>
+              <div>2. Create zeros below second pivot (<MathRenderer>{`${matrix[1][1]}`}</MathRenderer>)</div>
+              <div>3. Create zeros below third pivot (<MathRenderer>{`${matrix[2][2]}`}</MathRenderer>)</div>
               <div>4. Normalize all diagonal elements to 1</div>
               <div>5. Create zeros above all pivots</div>
             </div>
@@ -314,7 +346,9 @@ export default function MatrixLesson() {
             <MatrixGrid data={matrix} highlights={{ color: 'bg-blue-100' }} />
             <div className="text-center text-gray-600">
               <div>Augment with identity matrix and perform row operations</div>
-              <div className="font-mono text-sm mt-2">[A | I] → [I | A⁻¹]</div>
+              <div className="font-mono text-sm mt-2">
+                <MathRenderer>{`[A | I] \rightarrow [I | A^{-1}]`}</MathRenderer>
+              </div>
             </div>
           </div>
         )
@@ -364,9 +398,15 @@ export default function MatrixLesson() {
             description: 'Using Cramer\'s rule: x = det(Ax)/det(A), y = det(Ay)/det(A)',
             content: (
               <div className="space-y-2 text-center">
-                <div className="font-mono">det(A) = {det}</div>
-                <div className="font-mono text-sm">x = ({e}×{d} - {b}×{f})/{det} = {x.toFixed(4)}</div>
-                <div className="font-mono text-sm">y = ({a}×{f} - {e}×{c})/{det} = {y.toFixed(4)}</div>
+                <div className="font-mono">
+                  <MathRenderer>{`det(A) = ${det}`}</MathRenderer>
+                </div>
+                <div className="font-mono text-sm">
+                  <MathRenderer>{`x = \frac{${e} \times ${d} - ${b} \times ${f}}{${det}} = ${x.toFixed(4)}`}</MathRenderer>
+                </div>
+                <div className="font-mono text-sm">
+                  <MathRenderer>{`y = \frac{${a} \times ${f} - ${e} \times ${c}}{${det}} = ${y.toFixed(4)}`}</MathRenderer>
+                </div>
               </div>
             )
           },
@@ -392,7 +432,9 @@ export default function MatrixLesson() {
           description: 'Create augmented matrix [A|b] for solving the system',
           content: (
             <div className="space-y-4">
-              <div className="text-center font-mono text-sm">[A | b]</div>
+              <div className="text-center font-mono text-sm">
+                <MathRenderer>{`[A | b]`}</MathRenderer>
+              </div>
               <MatrixGrid 
                 data={augmentedMatrix} 
                 highlights={{ cols: [3], color: 'bg-yellow-100' }} 
@@ -405,8 +447,8 @@ export default function MatrixLesson() {
           description: 'Transform to row-echelon form using elementary row operations',
           content: (
             <div className="space-y-3 text-sm text-gray-600">
-              <div>1. Use ${matrix[0][0]} as pivot, eliminate below</div>
-              <div>2. Use ${matrix[1][1]} as pivot, eliminate below</div>
+              <div>1. Use <MathRenderer>{`${matrix[0][0]}`}</MathRenderer> as pivot, eliminate below</div>
+              <div>2. Use <MathRenderer>{`${matrix[1][1]}`}</MathRenderer> as pivot, eliminate below</div>
               <div>3. Normalize diagonal elements to 1</div>
               <div>4. Back substitution to find solution</div>
             </div>
@@ -444,7 +486,9 @@ export default function MatrixLesson() {
           description: 'System of 4 equations with 4 variables',
           content: (
             <div className="space-y-4">
-              <div className="text-center font-mono text-sm">[A₄×₄ | b₄×₁]</div>
+              <div className="text-center font-mono text-sm">
+                <MathRenderer>{`[A_{4\times4} | b_{4\times1}]`}</MathRenderer>
+              </div>
               <MatrixGrid 
                 data={augmentedMatrix} 
                 highlights={{ cols: [4], color: 'bg-yellow-100' }} 
@@ -457,9 +501,9 @@ export default function MatrixLesson() {
           description: 'Transform to upper triangular form',
           content: (
             <div className="space-y-3 text-sm text-gray-600">
-              <div>1. Create zeros below pivot ${matrix[0][0]}</div>
-              <div>2. Create zeros below pivot ${matrix[1][1]}</div>
-              <div>3. Create zeros below pivot ${matrix[2][2]}</div>
+              <div>1. Create zeros below pivot <MathRenderer>{`${matrix[0][0]}`}</MathRenderer></div>
+              <div>2. Create zeros below pivot <MathRenderer>{`${matrix[1][1]}`}</MathRenderer></div>
+              <div>3. Create zeros below pivot <MathRenderer>{`${matrix[2][2]}`}</MathRenderer></div>
               <div>4. Back substitution for 4 variables</div>
             </div>
           )
@@ -472,7 +516,7 @@ export default function MatrixLesson() {
               <div>1. Forward elimination to upper triangular</div>
               <div>2. Normalize all pivots to 1</div>
               <div>3. Backward elimination to create zeros above</div>
-              <div>4. Result: [I₄ | solution vector]</div>
+              <div>4. Result: <MathRenderer>{`[I_4 | \text{solution vector}]`}</MathRenderer></div>
             </div>
           )
         },
@@ -514,7 +558,7 @@ export default function MatrixLesson() {
 
   return (
     <div className="space-y-8 h-full">
-      <div className="flex overflow-x-auto pb-2 gap-2 no-scrollbar border-b border-slate-200">
+      <div className="flex overflow-x-auto pb-2 gap-1 sm:gap-2 no-scrollbar border-b border-slate-200">
         {[
           { id: 'det', label: 'Determinant', icon: Calculator },
           { id: 'ops', label: 'Operations', icon: Binary },
@@ -526,37 +570,40 @@ export default function MatrixLesson() {
             key={m.id}
             onClick={() => { setMode(m.id as MatrixMode); setCurrentStep(0); }}
             className={cn(
-               "flex items-center gap-2 px-4 py-2 border-b-2 transition-all shrink-0 text-sm font-bold uppercase tracking-wider",
+               "flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 border-b-2 transition-all shrink-0 text-xs sm:text-sm font-bold uppercase tracking-wider touch-manipulation",
                mode === m.id ? "border-blue-600 text-blue-600" : "border-transparent text-slate-400 hover:text-slate-600"
             )}
           >
-            <m.icon size={16} /> {m.label}
+            <m.icon size={14} className="sm:hidden" />
+            <m.icon size={16} className="hidden sm:block" />
+            <span className="hidden sm:inline">{m.label}</span>
+            <span className="sm:hidden text-xs">{m.label.slice(0, 3)}</span>
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <section className="lg:col-span-1 space-y-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-fit">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h3 className="font-bold text-slate-800 text-sm uppercase">Input Matrix</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <section className="lg:col-span-1 space-y-4 sm:space-y-6 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm h-fit">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2 sm:pb-3">
+            <h3 className="font-bold text-slate-800 text-xs sm:text-sm uppercase">Input Matrix</h3>
             <div className="flex rounded-lg bg-slate-100 p-0.5">
               {[2, 3, 4].map(s => (
                 <button
                   key={s}
                   onClick={() => handleSizeChange(s)}
                   className={cn(
-                    "px-2 py-1 rounded text-[10px] font-bold transition-all",
+                    "px-1.5 sm:px-2 py-1 rounded text-[8px] sm:text-[10px] font-bold transition-all touch-manipulation",
                     size === s ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"
                   )}
                 >
-                  {s}x{s}
+                  {s}×{s}
                 </button>
               ))}
             </div>
           </div>
 
           <div 
-            className="grid gap-2" 
+            className="grid gap-1 sm:gap-2" 
             style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}
           >
             {matrix.map((row, r) => row.map((val, c) => (
@@ -565,17 +612,19 @@ export default function MatrixLesson() {
                 type="number"
                 value={val}
                 onChange={(e) => handleMatrixChange(r, c, e.target.value)}
-                className="w-full aspect-square text-center bg-slate-50 border border-slate-200 focus:border-blue-500 rounded-lg font-mono text-sm outline-none transition-all"
+                className="w-full aspect-square text-center bg-slate-50 border border-slate-200 focus:border-blue-500 rounded-lg font-mono text-xs sm:text-sm outline-none transition-all touch-manipulation"
               />
             )))}
           </div>
         </section>
 
-        <section className="lg:col-span-3 min-h-[600px] border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+        <section className="lg:col-span-3 min-h-[500px] sm:min-h-[600px] border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
           <StepViewer 
             steps={steps}
             currentStep={currentStep}
             onStepChange={setCurrentStep}
+            autoPlay={true}
+            speedControl={true}
           />
         </section>
       </div>
