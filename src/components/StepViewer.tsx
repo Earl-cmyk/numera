@@ -86,82 +86,106 @@ export default function StepViewer({
   }, [currentStep]);
 
   return (
-    <div className={cn("flex flex-col h-full bg-slate-50 overflow-hidden", className)}>
+    <div className={cn("flex flex-col h-full bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 overflow-hidden", className)}>
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Visualization Area */}
         <div className="flex-1 flex flex-col p-4 md:p-8 overflow-hidden">
           <div className="mb-6 shrink-0">
-             <h2 className="text-xl md:text-2xl font-bold text-slate-800">{steps[currentStep].title}</h2>
-             <p className="text-sm md:text-base text-slate-500 mt-1">Numerical process simulation</p>
+             <h2 className="text-2xl md:text-3xl font-bold text-gradient">{steps[currentStep].title}</h2>
+             <p className="text-base md:text-lg text-slate-600 mt-2 font-medium">Interactive numerical computation</p>
           </div>
           
-          <div className="flex-1 flex items-center justify-center bg-white rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
-            <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] opacity-20" />
+          <div className="flex-1 flex items-center justify-center glass rounded-3xl border border-white/20 shadow-xl relative overflow-hidden group">
+            <div className="absolute inset-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:32px_32px] opacity-10" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-cyan-400/10 to-blue-400/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-1000" />
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                className="relative z-10 w-full h-full flex items-center justify-center"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05, y: -20 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="relative z-10 w-full h-full flex items-center justify-center p-4"
               >
                 {steps[currentStep].content}
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Controls Footer */}
-          <div className="mt-4 sm:mt-6 bg-white border border-slate-200 rounded-xl p-3 sm:p-4 md:p-6 flex flex-col gap-3 sm:gap-4 shadow-sm shrink-0">
+          {/* Enhanced Controls Footer */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-4 sm:mt-6 glass rounded-2xl border border-white/20 shadow-xl p-4 sm:p-6 flex flex-col gap-4 shrink-0"
+          >
             {/* Primary controls row */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 sm:gap-4">
-                <button
+              <div className="flex items-center gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={prev}
                   disabled={currentStep === 0}
-                  className="p-2 sm:p-3 rounded-full border border-slate-200 hover:bg-slate-50 disabled:opacity-30 transition-colors touch-manipulation"
+                  className={cn(
+                    "p-3 rounded-xl transition-all touch-manipulation",
+                    currentStep === 0 
+                      ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
+                      : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-blue-300 hover:text-blue-600 shadow-md hover:shadow-lg"
+                  )}
                   aria-label="Previous step"
                 >
                   <ChevronLeft size={20} className="sm:hidden" />
                   <ChevronLeft size={24} className="hidden sm:block" />
-                </button>
+                </motion.button>
                 
-                {/* Play/Pause button */}
+                {/* Enhanced Play/Pause button */}
                 {autoPlay && (
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={togglePlay}
                     disabled={currentStep === steps.length - 1}
                     className={cn(
-                      "p-2 sm:p-3 rounded-full transition-all active:scale-95 touch-manipulation",
+                      "p-3 rounded-xl transition-all touch-manipulation",
                       isPlaying 
-                        ? "bg-orange-600 text-white shadow-md hover:bg-orange-700" 
-                        : "bg-green-600 text-white shadow-md hover:bg-green-700 disabled:opacity-30"
+                        ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg hover:shadow-xl" 
+                        : "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg hover:shadow-xl disabled:opacity-30"
                     )}
                     aria-label={isPlaying ? "Pause" : "Play"}
                   >
                     {isPlaying ? <Pause size={20} className="sm:hidden" /> : <Play size={20} className="sm:hidden" />}
                     {isPlaying ? <Pause size={24} className="hidden sm:block" /> : <Play size={24} className="hidden sm:block" />}
-                  </button>
+                  </motion.button>
                 )}
                 
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={next}
                   disabled={currentStep === steps.length - 1}
-                  className="p-2 sm:p-3 rounded-full bg-blue-600 text-white shadow-md hover:bg-blue-700 disabled:opacity-30 transition-all active:scale-95 touch-manipulation"
+                  className={cn(
+                    "p-3 rounded-xl transition-all touch-manipulation",
+                    currentStep === steps.length - 1
+                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                      : "btn-gradient text-white shadow-lg hover:shadow-xl disabled:opacity-30"
+                  )}
                   aria-label="Next step"
                 >
                   <ChevronRight size={20} className="sm:hidden" />
                   <ChevronRight size={24} className="hidden sm:block" />
-                </button>
+                </motion.button>
               </div>
               
-              {/* Speed control - mobile optimized */}
+              {/* Enhanced Speed control */}
               {autoPlay && speedControl && (
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <FastForward size={14} className="text-slate-400 hidden sm:block" />
+                <div className="flex items-center gap-2 bg-white/50 rounded-xl px-3 py-2 border border-white/30">
+                  <FastForward size={16} className="text-slate-500" />
                   <select
                     value={playbackSpeed}
                     onChange={(e) => handleSpeedChange(Number(e.target.value))}
-                    className="text-xs border border-slate-200 rounded px-1 sm:px-2 py-1 bg-white text-slate-700 min-w-[50px]"
+                    className="text-xs border-0 bg-transparent text-slate-700 font-medium focus:outline-none"
                   >
                     <option value={0.5}>0.5x</option>
                     <option value={1}>1x</option>
@@ -172,35 +196,40 @@ export default function StepViewer({
               )}
             </div>
             
-            {/* Step info and progress */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
-              <div className="text-xs sm:text-sm font-medium text-slate-700 text-center sm:text-left">
-                Step <span className="text-blue-600 font-bold">{currentStep + 1}</span> of {steps.length}: 
-                <span className="text-slate-400 font-normal ml-1">
-                  {isPlaying ? 'Playing' : 'Process Update'}
-                </span>
+            {/* Enhanced Step info and progress */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-sm font-medium text-slate-700 text-center sm:text-left">
+                Step <span className="text-gradient font-bold text-lg">{currentStep + 1}</span> of <span className="text-slate-500">{steps.length}</span>
+                <div className="text-xs text-slate-400 mt-1">
+                  {isPlaying ? '🎵 Auto-playing' : '⏸️ Manual navigation'}
+                </div>
               </div>
               
-              {/* Progress bar - responsive sizing */}
-              <div className="flex gap-1 sm:gap-2">
+              {/* Enhanced Progress bar */}
+              <div className="flex gap-2">
                 {steps.map((_, idx) => (
-                  <div 
+                  <motion.div 
                     key={idx}
                     className={cn(
-                      "h-1.5 w-4 sm:w-6 md:w-8 rounded-full transition-all duration-300",
-                      idx === currentStep ? "bg-blue-600 w-6 sm:w-8 md:w-10" : idx < currentStep ? "bg-blue-400" : "bg-slate-200"
+                      "h-2 rounded-full transition-all duration-500",
+                      idx === currentStep 
+                        ? "bg-gradient-to-r from-blue-500 to-blue-600 w-8 shadow-lg" 
+                        : idx < currentStep 
+                          ? "bg-blue-400 w-6" 
+                          : "bg-slate-200 w-4"
                     )}
+                    whileHover={{ scale: 1.2 }}
                   />
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Step Explainer Sidebar (Integrated into StepViewer) */}
-        <aside className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-slate-200 bg-white p-4 sm:p-6 overflow-y-auto shrink-0 shrink-0">
-           <h3 className="text-xs sm:text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
-             <Info size={14} /> Method Guide
+        {/* Enhanced Step Explainer Sidebar */}
+        <aside className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-white/20 glass-dark p-4 sm:p-6 overflow-y-auto shrink-0">
+           <h3 className="text-sm font-bold text-gradient mb-6 flex items-center gap-3">
+             <Info size={18} className="text-blue-400" /> Process Guide
            </h3>
            
            <div className="space-y-8">
@@ -210,31 +239,48 @@ export default function StepViewer({
                  initial={{ opacity: 0, x: 20 }}
                  animate={{ opacity: 1, x: 0 }}
                  exit={{ opacity: 0, x: -20 }}
+                 transition={{ duration: 0.3 }}
                  className="space-y-6"
                >
-                 <div className="relative pl-6 sm:pl-8">
-                    <div className="absolute left-0 top-1 w-5 h-5 sm:w-6 sm:h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[8px] sm:text-[10px] font-bold shadow-lg shadow-blue-100">
+                 <div className="relative pl-8">
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.1 }}
+                      className="absolute left-0 top-1 w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-lg shadow-blue-500/30"
+                    >
                       {currentStep + 1}
-                    </div>
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-800 tracking-tight">Active Operation</h4>
-                    <p className="text-xs text-slate-600 mt-2 leading-relaxed math-font">
+                    </motion.div>
+                    <h4 className="text-sm font-bold text-white tracking-tight">Current Operation</h4>
+                    <p className="text-sm text-slate-300 mt-3 leading-relaxed math-font">
                       {steps[currentStep].description}
                     </p>
                  </div>
 
-
-                 <button 
+                 <motion.button 
+                   whileHover={{ scale: 1.02 }}
+                   whileTap={{ scale: 0.98 }}
                    onClick={reset}
-                   className="w-full flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all bg-white shadow-sm touch-manipulation"
+                   className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-white/20 text-sm font-semibold text-slate-300 hover:bg-white/10 transition-all bg-white/5 shadow-md touch-manipulation"
                  >
-                   <RefreshCcw size={14} /> Reset Simulation
-                 </button>
+                   <RefreshCcw size={16} /> Reset Simulation
+                 </motion.button>
                </motion.div>
              </AnimatePresence>
              
-             <div className="mt-6 sm:mt-8 pt-4 sm:pt-8 border-t border-slate-100 italic text-[10px] sm:text-[11px] text-slate-400 text-center hidden sm:block">
-                Mathematics is the language with which God has written the universe. — Galileo
-             </div>
+             <motion.div 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               transition={{ delay: 0.5 }}
+               className="pt-6 border-t border-white/10 text-center"
+             >
+               <div className="text-xs text-slate-400 italic mb-3">💡 Tip</div>
+               <div className="text-[11px] text-slate-300 leading-relaxed">
+                 {currentStep === 0 && "Start here to understand the foundation of the method."}
+                 {currentStep > 0 && currentStep < steps.length - 1 && "Each step builds upon the previous one."}
+                 {currentStep === steps.length - 1 && "You've completed the full process!"}
+               </div>
+             </motion.div>
            </div>
         </aside>
       </div>

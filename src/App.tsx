@@ -45,77 +45,147 @@ export default function App() {
       case 'matrices': return <MatrixLesson />;
       case 'roots': return <RootsLesson />;
       default: return (
-        <div className="max-w-5xl mx-auto space-y-10 py-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="space-y-4">
-            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Numerical Computing Engine</h1>
-            <p className="text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Explore mathematical approximations through step-by-step visualizations and real-time computation engines.
-            </p>
+        <div className="max-w-6xl mx-auto space-y-12 py-6 animate-slide-in">
+          <div className="text-center space-y-6">
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="space-y-4"
+            >
+              <h1 className="text-5xl md:text-6xl font-extrabold text-gradient tracking-tight">
+                Numerical Computing Engine
+              </h1>
+              <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-medium">
+                Master mathematical approximations through interactive visualizations, real-time computation engines, and step-by-step problem solving.
+              </p>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="flex flex-wrap justify-center gap-3"
+            >
+              {['Interactive', 'Real-time', 'Step-by-step', 'Visual Learning'].map((tag, i) => (
+                <span key={tag} className="px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-full text-sm font-semibold border border-blue-200 animate-float" style={{ animationDelay: `${i * 0.2}s` }}>
+                  {tag}
+                </span>
+              ))}
+            </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {filteredLessons.map((lesson) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {filteredLessons.map((lesson, index) => (
               <motion.div
                 key={lesson.id}
-                whileHover={{ y: -5 }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 + 0.4, duration: 0.6 }}
+                whileHover={{ y: -8, scale: 1.02 }}
                 onClick={() => setActiveLesson(lesson.id as LessonId)}
-                className="group p-8 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-100 transition-all cursor-pointer flex flex-col items-start gap-4"
+                className="group p-8 glass rounded-3xl border border-white/20 shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 transition-all cursor-pointer flex flex-col items-start gap-6 card-hover relative overflow-hidden"
               >
-                <div className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center text-slate-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-                  <lesson.icon size={28} />
+                {/* Background gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-transparent to-purple-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="w-16 h-16 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl flex items-center justify-center text-slate-600 group-hover:from-blue-600 group-hover:to-blue-700 group-hover:text-white transition-all duration-500 shadow-lg group-hover:shadow-xl group-hover:shadow-blue-500/30">
+                  <lesson.icon size={32} />
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{lesson.title}</h3>
-                  <p className="text-sm text-slate-500 mt-2 leading-relaxed">{lesson.description}</p>
+                
+                <div className="space-y-3">
+                  <h3 className="text-xl font-bold text-slate-800 group-hover:text-gradient transition-colors">{lesson.title}</h3>
+                  <p className="text-slate-500 leading-relaxed">{lesson.description}</p>
                 </div>
-                <div className="mt-auto pt-4 border-t border-slate-50 w-full flex items-center justify-between group-hover:border-blue-50 transition-colors">
-                   <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">Start Module</span>
-                   <ChevronRight size={16} className="text-slate-300 group-hover:text-blue-600 translate-x-0 group-hover:translate-x-1 transition-all" />
+                
+                <div className="mt-auto pt-6 border-t border-slate-100 w-full flex items-center justify-between group-hover:border-blue-200 transition-colors">
+                   <span className="text-sm font-bold text-blue-600 uppercase tracking-wider group-hover:text-gradient">Start Module</span>
+                   <ChevronRight size={20} className="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-2 transition-all duration-300" />
                 </div>
               </motion.div>
             ))}
           </div>
 
-          <div className="bg-slate-900 rounded-3xl p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between gap-12 overflow-hidden relative shadow-2xl">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-slate-800/50 blur-[80px] rounded-full" />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
+            className="bg-gradient-to-br from-slate-900 via-blue-900/90 to-slate-900 rounded-3xl p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between gap-12 overflow-hidden relative shadow-2xl border border-white/10"
+          >
+            {/* Animated background elements */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-600/20 to-purple-600/20 blur-[120px] rounded-full animate-float" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-cyan-600/10 to-blue-600/10 blur-[100px] rounded-full animate-pulse-glow" />
             
-            <div className="relative z-10 space-y-4 text-center md:text-left">
-              <h2 className="text-3xl font-bold tracking-tight">Numerical Problem Solver</h2>
-              <p className="text-slate-400 max-w-md text-sm leading-relaxed">Our visual engine breaks down complex operations into manageable steps. Try entering your own functions in any module.</p>
-              <button 
-                 onClick={() => setActiveLesson('taylor')}
-                 className="mt-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold shadow-lg shadow-blue-900/20 transition-all active:scale-95 text-sm"
-              >
-                Launch First Lesson
-              </button>
+            <div className="relative z-10 space-y-6 text-center md:text-left">
+              <h2 className="text-4xl font-bold tracking-tight text-gradient-2">Advanced Problem Solver</h2>
+              <p className="text-slate-300 max-w-md text-base leading-relaxed">Our visual computation engine breaks down complex mathematical operations into intuitive, step-by-step visualizations. Enter your own functions and watch the magic happen in real-time.</p>
+              <div className="flex flex-wrap gap-3">
+                <button 
+                   onClick={() => setActiveLesson('taylor')}
+                   className="btn-gradient px-8 py-4 rounded-2xl font-bold text-white shadow-lg transition-all"
+                >
+                  Launch First Lesson
+                </button>
+                <button className="px-6 py-4 glass rounded-2xl font-semibold text-white/80 hover:text-white transition-all border border-white/20">
+                  View Demo
+                </button>
+              </div>
             </div>
 
-            <div className="relative z-10 w-full max-w-[320px] bg-slate-800/50 backdrop-blur-md rounded-2xl border border-slate-700/50 p-6 space-y-4">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1, duration: 0.6 }}
+              className="relative z-10 w-full max-w-[380px] glass-dark rounded-3xl border border-white/10 p-8 space-y-6"
+            >
                <div className="flex items-center gap-3 text-sm font-mono text-blue-400">
-                 <Binary size={16} /> <span>Engine Stats</span>
+                 <Binary size={20} className="animate-pulse" /> <span className="font-bold">Engine Performance</span>
                </div>
-               <div className="space-y-4">
-                  <div className="flex justify-between text-[10px] uppercase font-bold tracking-widest">
-                    <span className="text-slate-500">Precision</span>
-                    <span className="text-blue-300">Symbolic</span>
+               
+               <div className="space-y-6">
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-xs uppercase font-bold tracking-wider">
+                      <span className="text-slate-400">Computational Precision</span>
+                      <span className="text-blue-300 font-mono">Symbolic + Numeric</span>
+                    </div>
+                    <div className="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: '95%' }}
+                        transition={{ delay: 1.2, duration: 1.5, ease: 'easeOut' }}
+                        className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 shimmer rounded-full"
+                      />
+                    </div>
                   </div>
-                  <div className="h-1 bg-slate-700 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 w-4/5" />
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-xs uppercase font-bold tracking-wider">
+                      <span className="text-slate-400">Algorithm Efficiency</span>
+                      <span className="text-green-300 font-mono">O(n log n)</span>
+                    </div>
+                    <div className="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: '88%' }}
+                        transition={{ delay: 1.4, duration: 1.2, ease: 'easeOut' }}
+                        className="h-full bg-gradient-to-r from-green-500 to-emerald-500 shimmer rounded-full"
+                      />
+                    </div>
                   </div>
                </div>
-               <div className="pt-2 flex justify-around">
+               
+               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
                   <div className="text-center">
-                    <div className="text-xl font-bold">100%</div>
-                    <div className="text-[10px] text-slate-500 uppercase">Accuracy</div>
+                    <div className="text-2xl font-bold text-gradient">100%</div>
+                    <div className="text-xs text-slate-400 uppercase tracking-wider">Accuracy</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-xl font-bold">Realtime</div>
-                    <div className="text-[10px] text-slate-500 uppercase">Updates</div>
+                    <div className="text-2xl font-bold text-gradient-2">Realtime</div>
+                    <div className="text-xs text-slate-400 uppercase tracking-wider">Processing</div>
                   </div>
                </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       );
     }

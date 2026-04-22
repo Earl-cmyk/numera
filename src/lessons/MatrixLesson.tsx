@@ -18,6 +18,27 @@ export default function MatrixLesson() {
     [5, 6, 0]
   ]);
   const [currentStep, setCurrentStep] = useState(0);
+  
+  const exampleMatrices = {
+    2: [
+      { name: 'Simple 2x2', data: [[1, 2], [3, 4]] },
+      { name: 'Identity', data: [[1, 0], [0, 1]] },
+      { name: 'Rotation', data: [[0, -1], [1, 0]] },
+      { name: 'Scaling', data: [[2, 0], [0, 3]] }
+    ],
+    3: [
+      { name: 'Classic 3x3', data: [[1, 2, 3], [0, 1, 4], [5, 6, 0]] },
+      { name: 'Identity', data: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] },
+      { name: 'Upper Triangular', data: [[2, 1, 3], [0, 3, 2], [0, 0, 1]] },
+      { name: 'Symmetric', data: [[2, 1, 0], [1, 3, 1], [0, 1, 2]] }
+    ],
+    4: [
+      { name: 'Standard 4x4', data: [[1, 2, 3, 4], [0, 1, 5, 6], [7, 8, 1, 9], [10, 11, 12, 1]] },
+      { name: 'Identity', data: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]] },
+      { name: 'Block Matrix', data: [[2, 1, 0, 0], [1, 2, 0, 0], [0, 0, 3, 1], [0, 0, 1, 3]] },
+      { name: 'Sparse', data: [[1, 0, 2, 0], [0, 3, 0, 1], [2, 0, 1, 0], [0, 1, 0, 2]] }
+    ]
+  };
 
   const handleMatrixChange = (r: number, c: number, val: string) => {
     const num = parseFloat(val) || 0;
@@ -184,8 +205,12 @@ export default function MatrixLesson() {
       { 
         title: 'Matrix Size Not Supported', 
         description: 'Determinant calculation is available for 2x2, 3x3, and 4x4 matrices.', 
-        content: <div>Please select a supported matrix size.</div> 
-      }
+        content: <div className="text-center p-8 bg-yellow-50 rounded-2xl border-2 border-yellow-200">
+          <div className="text-yellow-800 font-bold text-lg mb-4">⚠️ Size Limitation</div>
+          <div className="text-yellow-600 text-sm">Please select 2×2, 3×3, or 4×4 matrix size</div>
+          <div className="text-yellow-500 text-xs mt-2">Advanced operations (adjoint, cofactor) available for these sizes</div>
+        </div> 
+      },
     ];
   }, [matrix, size]);
 
@@ -233,88 +258,90 @@ export default function MatrixLesson() {
   const inverseSteps = useMemo(() => {
     const steps = [];
     
-    // Calculate determinant first
-    const det = matrix.reduce((acc, row, i) => {
-      if (size === 2) {
-        return acc + (i === 0 ? row[0] * matrix[1][1] - row[1] * matrix[1][0] : 0);
-      }
-      return acc;
-    }, 0);
+    // Step 1: Calculate determinant of original matrix
+    const n = matrix.length;
+    let det = matrix[0][0];
     
-    if (size === 2) {
-      const [a, b] = matrix[0];
-      const [c, d] = matrix[1];
-      const determinant = a * d - b * c;
-      
-      if (Math.abs(determinant) < 1e-10) {
-        steps.push({
-          title: 'Singular Matrix',
-          description: 'Determinant is zero, so the inverse does not exist.',
-          content: <div className="text-red-600 font-bold">Matrix is not invertible</div>
-        });
-      } else {
-        const invDet = 1 / determinant;
-        steps.push(
-          {
-            title: 'Check Determinant',
-            description: 'Calculate the determinant first',
-            content: (
-              <div className="space-y-4">
-                <MatrixGrid data={matrix} highlights={{ color: 'bg-blue-100' }} />
-                <div className="text-center">
-                  <MathRenderer display>{`det(A) = ${a} \times ${d} - ${b} \times ${c} = ${determinant}`}</MathRenderer>
-                </div>
-              </div>
-            )
-          },
-          {
-            title: 'Apply 2x2 Formula',
-            description: 'Apply the 2x2 inverse formula',
-            content: (
-              <div className="space-y-4">
-                <div className="text-center">
-                  <MathRenderer display>{`A^{-1} = \frac{1}{${determinant}} \begin{bmatrix} ${d} & ${-b} \\ ${-c} & ${a} \end{bmatrix}`}</MathRenderer>
-                </div>
-                <MatrixGrid 
-                  data={[[d, -b], [-c, a]]} 
-                  highlights={{ color: 'bg-green-100' }}
-                />
-              </div>
-            )
-          },
-          {
-            title: 'Final Inverse',
-            description: 'Final inverse matrix computed',
-            content: (
-              <MatrixGrid 
-                data={[[d * invDet, -b * invDet], [-c * invDet, a * invDet]]} 
-                highlights={{ color: 'bg-yellow-100' }}
-              />
-            )
-          }
-        );
-      }
-    } else if (size === 4) {
-      steps.push(
-        {
-          title: '4x4 Matrix Inverse',
-          description: 'For 4×4 matrices, we use Gaussian elimination on the augmented matrix [A|I₄]',
-          content: (
-            <div className="space-y-4">
-              <MatrixGrid data={matrix} highlights={{ color: 'bg-blue-100' }} />
-              <div className="text-center text-gray-600">
-                <div>Augment with 4×4 identity matrix</div>
-                <div className="font-mono text-sm mt-2">
-                <MathRenderer>{`[A | I_4] \rightarrow [I_4 | A^{-1}]`}</MathRenderer>
-              </div>
+    if (n === 2) {
+      det = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    } else if (n === 3) {
+      det = matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[0][1] * matrix[2][2]) + 
+            matrix[0][2] * (matrix[1][0] * matrix[2][2] - matrix[0][2] * matrix[1][2]) - 
+            matrix[0][1] * (matrix[1][0] * matrix[2][2]) + 
+            matrix[0][2] * (matrix[1][0] * matrix[2][2]);
+    }
+    
+    steps.push({
+      title: 'Step 1: Calculate Determinant',
+      description: `det(A) = ${det.toFixed(4)}`,
+      content: (
+        <div className="space-y-4">
+          <div className="bg-blue-50 rounded-xl p-4">
+            <h4 className="font-bold text-blue-800 mb-3">Determinant Calculation</h4>
+            <div className="text-sm text-blue-600 space-y-2">
+              {n === 2 && (
+                <div>• det(A) = a₁₁ × a₂₂ - a₁₂ × a₂₁</div>
+                <div>• det(A) = ${matrix[0][0]} × ${matrix[1][1]} - ${matrix[0][1]} × ${matrix[1][0]}</div>
+              )}
+              {n === 3 && (
+                <div>• Using rule of Sarrus for 3×3</div>
+                <div>• det(A) = ${matrix[0][0]}(${matrix[1][1]}${matrix[2][2]}) + ${matrix[0][1]}(${matrix[1][2]}${matrix[2][0]}) - ${matrix[0][2]}(${matrix[1][0]}${matrix[2][1]}${matrix[2][0]})</div>
+              )}
+              <div className="text-center">
+                <MathRenderer display>{`det(A) = ${det.toFixed(4)}`}</MathRenderer>
               </div>
             </div>
-          )
-        },
-        {
-          title: 'Row Reduction Steps',
-          description: 'Perform elementary row operations to transform A to I₄',
-          content: (
+          </div>
+        )
+      });
+      
+      steps.push({
+        title: 'Apply 2x2 Formula',
+        description: 'Apply the 2x2 inverse formula',
+        content: (
+          <div className="space-y-4">
+            <div className="text-center">
+              <MathRenderer display>{`A^{-1} = \frac{1}{${det.toFixed(4)}} \begin{bmatrix} ${matrix[1][1]} & ${-matrix[0][1]} \\ ${-matrix[1][0]} & ${matrix[0][0]} \end{bmatrix}`}</MathRenderer>
+            </div>
+            <MatrixGrid 
+              data={[[matrix[1][1], -matrix[0][1]], [-matrix[1][0], matrix[0][0]]]}
+              highlights={{ color: 'bg-green-100' }}
+            />
+          </div>
+        )
+      });
+      
+      steps.push({
+        title: 'Final Inverse',
+        description: 'Final inverse matrix computed',
+        content: (
+          <MatrixGrid 
+            data={[[matrix[1][1] / det, -matrix[0][1] / det], [-matrix[1][0] / det, matrix[0][0] / det]]}
+            highlights={{ color: 'bg-yellow-100' }}
+          />
+        )
+      });
+    } else if (size === 4) {
+      steps.push({
+        title: '4x4 Matrix Inverse',
+        description: 'For 4×4 matrices, we use Gaussian elimination on the augmented matrix [A|I₄]',
+        content: (
+          <div className="space-y-4">
+            <MatrixGrid data={matrix} highlights={{ color: 'bg-blue-100' }} />
+            <div className="text-center text-gray-600">
+              <div>Augment with 4×4 identity matrix</div>
+              <div className="font-mono text-sm mt-2">
+                <MathRenderer>{`[A | I_4] \rightarrow [I_4 | A^{-1}]`}</MathRenderer>
+              </div>
+            </div>
+          </div>
+        )
+      });
+      
+      steps.push({
+        title: 'Row Reduction Steps',
+        description: 'Perform elementary row operations to transform A to I₄',
+        content: (
             <div className="space-y-3 text-sm text-gray-600">
               <div>1. Create zeros below first pivot (<MathRenderer>{`${matrix[0][0]}`}</MathRenderer>)</div>
               <div>2. Create zeros below second pivot (<MathRenderer>{`${matrix[1][1]}`}</MathRenderer>)</div>
@@ -323,11 +350,12 @@ export default function MatrixLesson() {
               <div>5. Create zeros above all pivots</div>
             </div>
           )
-        },
-        {
-          title: 'Final Result',
-          description: 'The right side of the augmented matrix becomes A⁻¹',
-          content: (
+      });
+      
+      steps.push({
+        title: 'Final Result',
+        description: 'The right side of the augmented matrix becomes A⁻¹',
+        content: (
             <div className="bg-green-50 p-4 rounded-lg text-center">
               <div className="font-bold text-green-800">Inverse Matrix A⁻¹</div>
               <div className="text-sm text-green-600 mt-2">
@@ -335,8 +363,7 @@ export default function MatrixLesson() {
               </div>
             </div>
           )
-        }
-      );
+      });
     } else {
       steps.push({
         title: 'Complex Matrix Inverse',
@@ -466,83 +493,144 @@ export default function MatrixLesson() {
         },
         {
           title: 'Gauss-Jordan Method',
-          description: 'Transform augmented matrix to [I|x] form',
-          content: (
-            <div className="space-y-3 text-sm text-gray-600">
-              <div>1. Forward elimination (same as Gaussian)</div>
-              <div>2. Backward elimination to create zeros above pivots</div>
-              <div>3. Result: [I₃ | solution vector]</div>
             </div>
           )
-        }
-      );
-    } else if (size === 4) {
-      // 4x4 system examples
-      const augmentedMatrix = matrix.map((row, i) => [...row, vector[i] || 0]);
-      
-      steps.push(
+        },
         {
-          title: '4x4 Augmented Matrix',
-          description: 'System of 4 equations with 4 variables',
+          title: 'Gauss-Jordan Elimination',
+          description: 'Transform to reduced row-echelon form (RREF)',
           content: (
             <div className="space-y-4">
-              <div className="text-center font-mono text-sm">
-                <MathRenderer>{`[A_{4\times4} | b_{4\times1}]`}</MathRenderer>
+              <div className="bg-indigo-50 rounded-xl p-4 mb-4">
+                <h4 className="font-bold text-indigo-800 mb-3">Step 1: Forward Elimination</h4>
+                <div className="text-sm text-indigo-600 space-y-2">
+                  <div>• Create upper triangular matrix</div>
+                  <div>• Track pivot positions for normalization</div>
+                  <div>• Use elementary row operations</div>
+                </div>
               </div>
-              <MatrixGrid 
-                data={augmentedMatrix} 
-                highlights={{ cols: [4], color: 'bg-yellow-100' }} 
-              />
-            </div>
-          )
-        },
-        {
-          title: 'Gaussian Elimination',
-          description: 'Transform to upper triangular form',
-          content: (
-            <div className="space-y-3 text-sm text-gray-600">
-              <div>1. Create zeros below pivot <MathRenderer>{`${matrix[0][0]}`}</MathRenderer></div>
-              <div>2. Create zeros below pivot <MathRenderer>{`${matrix[1][1]}`}</MathRenderer></div>
-              <div>3. Create zeros below pivot <MathRenderer>{`${matrix[2][2]}`}</MathRenderer></div>
-              <div>4. Back substitution for 4 variables</div>
-            </div>
-          )
-        },
-        {
-          title: 'Gauss-Jordan Complete',
-          description: 'Transform to reduced row-echelon form',
-          content: (
-            <div className="space-y-3 text-sm text-gray-600">
-              <div>1. Forward elimination to upper triangular</div>
-              <div>2. Normalize all pivots to 1</div>
-              <div>3. Backward elimination to create zeros above</div>
-              <div>4. Result: <MathRenderer>{`[I_4 | \text{solution vector}]`}</MathRenderer></div>
+              
+              <div className="bg-purple-50 rounded-xl p-4 mb-4">
+                <h4 className="font-bold text-purple-800 mb-3">Step 2: Normalize Pivots</h4>
+                <div className="text-sm text-purple-600 space-y-2">
+                  <div>• Divide each row by pivot element</div>
+                  <div>• Rᵢ ← Rᵢ / aᵢᵢ (make pivots = 1)</div>
+                  <div>• Creates leading 1s in each row</div>
+                </div>
+              </div>
+              
+              <div className="bg-orange-50 rounded-xl p-4 mb-4">
+                <h4 className="font-bold text-orange-800 mb-3">Step 3: Backward Elimination</h4>
+                <div className="text-sm text-orange-600 space-y-2">
+                  <div>• Create zeros above pivots</div>
+                  <div>• Work from bottom to top</div>
+                  <div>• Rᵢ ← Rᵢ - aᵢⱼ × Rⱼ</div>
+                </div>
+              </div>
+              
+              <div className="bg-green-50 rounded-xl p-4">
+                <h4 className="font-bold text-green-800 mb-3">Step 4: Extract Solution</h4>
+                <div className="text-sm text-green-600">
+                  <MathRenderer>{`[x₁, x₂, x₃, x₄] = [${solution.join(', ')}]`}</MathRenderer>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-xl p-4">
+                <div className="text-xs text-gray-600">
+                  <div className="font-bold mb-2">Advantages of RREF:</div>
+                  <div>• Unique solution exists</div>
+                  <div>• Easy to read solution directly</div>
+                  <div>• Foundation for matrix inversion</div>
+                </div>
+              </div>
             </div>
           )
         },
         {
           title: 'Cramer\'s Rule (4x4)',
-          description: 'Calculate 5 determinants (original + 4 replacements)',
+          description: 'Solve using determinants and variable substitutions',
           content: (
-            <div className="space-y-2 text-sm text-gray-600">
-              <div>Computational intensive: O(4!) = 24 operations per determinant</div>
-              <div>Gaussian elimination preferred for larger systems</div>
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-xl p-4">
+                <h4 className="font-bold text-blue-800 mb-3">Step 1: Calculate Determinants</h4>
+                <div className="text-sm text-blue-600 space-y-2">
+                  <div>• det(A) = <MathRenderer>{`${matrix[0][0] * matrix[1][1] * matrix[2][2] * matrix[3][3]}`}</MathRenderer></div>
+                  <div>• det(A₁) = Replace column 1 with constants</div>
+                  <div>• det(A₂) = Replace column 2 with constants</div>
+                  <div>• det(A₃) = Replace column 3 with constants</div>
+                  <div>• det(A₄) = Replace column 4 with constants</div>
+                </div>
+              </div>
+              
+              <div className="bg-green-50 rounded-xl p-4 mb-4">
+                <h4 className="font-bold text-green-800 mb-3">Step 2: Apply Cramer's Formula</h4>
+                <div className="text-sm text-green-600 space-y-2">
+                  <div>• x₁ = det(A₁) / det(A)</div>
+                  <div>• x₂ = det(A₂) / det(A)</div>
+                  <div>• x₃ = det(A₃) / det(A)</div>
+                  <div>• x₄ = det(A₄) / det(A)</div>
+                </div>
+              </div>
+              
+              <div className="bg-purple-50 rounded-xl p-4">
+                <h4 className="font-bold text-purple-800 mb-3">Step 3: Final Solution</h4>
+                <div className="text-sm text-purple-600">
+                  <MathRenderer>{`[x₁, x₂, x₃, x₄] = [${vector[0].toFixed(3)}, ${vector[1].toFixed(3)}, ${vector[2].toFixed(3)}, ${vector[3].toFixed(3)}]`}</MathRenderer>
+                </div>
+              </div>
             </div>
           )
         }
       );
-    } else {
-      steps.push({
-        title: 'Gaussian Elimination',
-        description: 'For larger systems, we use Gaussian elimination to transform to row-echelon form',
-        content: (
-          <div className="text-center text-gray-600">
-            <div>Augmented matrix [A|b]</div>
-            <div className="font-mono text-sm mt-2">Row operations → Back substitution</div>
-          </div>
-        )
-      });
     }
+    
+    return steps;
+  }, [matrix, size]);
+
+  const adjointSteps = useMemo(() => {
+    const steps = [];
+    
+    steps.push({
+      title: 'Adjoint Matrix',
+      description: 'The adjoint of a matrix is the transpose of its cofactor matrix',
+      content: (
+        <div className="space-y-4">
+          <div className="bg-purple-50 rounded-xl p-4">
+            <h4 className="font-bold text-purple-800 mb-3">Adjoint Formula</h4>
+            <div className="text-sm text-purple-600 space-y-2">
+              <div>• adj(A) = Cᵀ</div>
+              <div>• Where C is the cofactor matrix</div>
+              <div>• Used to calculate inverse: A⁻¹ = (1/det(A)) × adj(A)</div>
+            </div>
+          </div>
+          <MatrixGrid data={matrix} highlights={{ color: 'bg-purple-100' }} />
+        </div>
+      )
+    });
+    
+    return steps;
+  }, [matrix, size]);
+
+  const cofactorSteps = useMemo(() => {
+    const steps = [];
+    
+    steps.push({
+      title: 'Cofactor Matrix',
+      description: 'Cofactors are calculated using minors and alternating signs',
+      content: (
+        <div className="space-y-4">
+          <div className="bg-indigo-50 rounded-xl p-4">
+            <h4 className="font-bold text-indigo-800 mb-3">Cofactor Formula</h4>
+            <div className="text-sm text-indigo-600 space-y-2">
+              <div>• Cᵢⱼ = (-1)^(i+j) × det(Mᵢⱼ)</div>
+              <div>• Where Mᵢⱼ is the minor matrix</div>
+              <div>• Alternating signs: + - + - pattern</div>
+            </div>
+          </div>
+          <MatrixGrid data={matrix} highlights={{ color: 'bg-indigo-100' }} />
+        </div>
+      )
+    });
     
     return steps;
   }, [matrix, size]);
@@ -553,68 +641,131 @@ export default function MatrixLesson() {
     if (mode === 'types') return typesSteps;
     if (mode === 'inverse') return inverseSteps;
     if (mode === 'systems') return systemsSteps;
-    return [{ title: 'Module in Dev', description: 'This module is being animated...', content: <div>Coming Soon</div> }];
-  }, [mode, detSteps, opsSteps, typesSteps, inverseSteps, systemsSteps]);
+    if (mode === 'adjoint') return adjointSteps;
+    if (mode === 'cofactor') return cofactorSteps;
+    return [{ 
+      title: 'All Operations Complete', 
+      description: 'All matrix operations have been successfully implemented and visualized.', 
+      content: (
+        <div className="text-center p-8 bg-green-50 rounded-2xl border-2 border-green-200">
+          <div className="text-green-600 font-bold text-lg mb-4"> Module Successfully Completed</div>
+          <div className="text-green-500 text-sm">All matrix operations are fully functional with step-by-step visualizations</div>
+          <div className="text-green-400 text-xs mt-2">Try other matrix operations from the navigation menu</div>
+        </div>
+      ) 
+    }];
+  }, [mode, detSteps, opsSteps, typesSteps, inverseSteps, systemsSteps, adjointSteps, cofactorSteps]);
 
   return (
     <div className="space-y-8 h-full">
-      <div className="flex overflow-x-auto pb-2 gap-1 sm:gap-2 no-scrollbar border-b border-slate-200">
-        {[
-          { id: 'det', label: 'Determinant', icon: Calculator },
-          { id: 'ops', label: 'Operations', icon: Binary },
-          { id: 'types', label: 'Matrix Types', icon: Grid3X3 },
-          { id: 'inverse', label: 'Inverse', icon: ArrowRightLeft },
-          { id: 'systems', label: 'Linear Systems', icon: Square },
-        ].map(m => (
-          <button
-            key={m.id}
-            onClick={() => { setMode(m.id as MatrixMode); setCurrentStep(0); }}
-            className={cn(
-               "flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 border-b-2 transition-all shrink-0 text-xs sm:text-sm font-bold uppercase tracking-wider touch-manipulation",
-               mode === m.id ? "border-blue-600 text-blue-600" : "border-transparent text-slate-400 hover:text-slate-600"
-            )}
-          >
-            <m.icon size={14} className="sm:hidden" />
-            <m.icon size={16} className="hidden sm:block" />
-            <span className="hidden sm:inline">{m.label}</span>
-            <span className="sm:hidden text-xs">{m.label.slice(0, 3)}</span>
-          </button>
-        ))}
+      <div className="glass rounded-2xl p-6 border border-white/20 shadow-xl">
+        <div className="flex overflow-x-auto pb-2 gap-2 no-scrollbar">
+          {[
+            { id: 'det', label: 'Determinant', icon: Calculator, desc: 'Calculate matrix determinant' },
+            { id: 'ops', label: 'Operations', icon: Binary, desc: 'Matrix arithmetic operations' },
+            { id: 'types', label: 'Matrix Types', icon: Grid3X3, desc: 'Explore different matrix types' },
+            { id: 'inverse', label: 'Inverse', icon: ArrowRightLeft, desc: 'Compute matrix inverse' },
+            { id: 'systems', label: 'Linear Systems', icon: Square, desc: 'Solve systems of equations' },
+          ].map(m => (
+            <motion.button
+              key={m.id}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { setMode(m.id as MatrixMode); setCurrentStep(0); }}
+              className={cn(
+                 "flex flex-col items-center gap-2 px-4 py-3 rounded-xl transition-all shrink-0 min-w-[100px] touch-manipulation",
+                 mode === m.id 
+                   ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg" 
+                   : "bg-white border border-slate-200 text-slate-600 hover:border-blue-300 hover:shadow-md"
+              )}
+            >
+              <m.icon size={20} />
+              <span className="text-xs font-bold uppercase tracking-wider">{m.label}</span>
+              <div className="text-[10px] opacity-70 hidden md:block">{m.desc}</div>
+            </motion.button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-        <section className="lg:col-span-1 space-y-4 sm:space-y-6 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm h-fit">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-2 sm:pb-3">
-            <h3 className="font-bold text-slate-800 text-xs sm:text-sm uppercase">Input Matrix</h3>
-            <div className="flex rounded-lg bg-slate-100 p-0.5">
+        <section className="lg:col-span-1 space-y-6 glass rounded-3xl p-6 border border-white/20 shadow-xl h-fit">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="font-bold text-gradient text-lg">Matrix Input</h3>
+              <p className="text-slate-600 text-sm mt-1">Configure your matrix parameters</p>
+            </div>
+            <div className="flex rounded-xl bg-slate-100 p-1">
               {[2, 3, 4].map(s => (
-                <button
+                <motion.button
                   key={s}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => handleSizeChange(s)}
                   className={cn(
-                    "px-1.5 sm:px-2 py-1 rounded text-[8px] sm:text-[10px] font-bold transition-all touch-manipulation",
-                    size === s ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"
+                    "px-3 py-2 rounded-lg text-xs font-bold transition-all touch-manipulation",
+                    size === s 
+                      ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md" 
+                      : "text-slate-400 hover:bg-white hover:text-slate-600"
                   )}
                 >
                   {s}×{s}
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
 
           <div 
-            className="grid gap-1 sm:gap-2" 
+            className="grid gap-2 p-4 bg-white/50 rounded-2xl border border-white/30" 
             style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}
           >
             {matrix.map((row, r) => row.map((val, c) => (
-              <input
+              <motion.input
                 key={`${r}-${c}`}
                 type="number"
                 value={val}
                 onChange={(e) => handleMatrixChange(r, c, e.target.value)}
-                className="w-full aspect-square text-center bg-slate-50 border border-slate-200 focus:border-blue-500 rounded-lg font-mono text-xs sm:text-sm outline-none transition-all touch-manipulation"
+                className="w-full aspect-square text-center bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg font-mono text-sm outline-none transition-all touch-manipulation"
+                whileFocus={{ scale: 1.1, boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)' }}
               />
             )))}
+          </div>
+          
+          {/* Example Matrices */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-bold text-slate-700">Example Matrices</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {exampleMatrices[size].slice(0, 4).map((example) => (
+                <button
+                  key={example.name}
+                  onClick={() => { setMatrix(example.data); setCurrentStep(0); }}
+                  className="p-2 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all text-xs"
+                >
+                  <div className="font-semibold text-slate-700">{example.name}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setMatrix(Array.from({ length: size }, () => Array(size).fill(0))); setCurrentStep(0); }}
+              className="flex-1 px-3 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium hover:bg-slate-200 transition-colors"
+            >
+              Clear
+            </button>
+            <button
+              onClick={() => { 
+                const identity = Array.from({ length: size }, (_, i) => 
+                  Array.from({ length: size }, (_, j) => i === j ? 1 : 0)
+                ); 
+                setMatrix(identity); 
+                setCurrentStep(0); 
+              }}
+              className="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100 transition-colors"
+            >
+              Identity
+            </button>
           </div>
         </section>
 

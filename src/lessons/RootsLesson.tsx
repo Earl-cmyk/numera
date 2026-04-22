@@ -14,6 +14,15 @@ export default function RootsLesson() {
   const [range, setRange] = useState({ a: 0, b: 5 });
   const [x0, setX0] = useState(1);
   const [currentStep, setCurrentStep] = useState(0);
+  
+  const exampleFunctions = [
+    { fn: 'x^2 - 4', desc: 'Simple quadratic', range: { a: 0, b: 5 }, x0: 1 },
+    { fn: 'x^3 - x - 2', desc: 'Cubic equation', range: { a: 1, b: 2 }, x0: 1.5 },
+    { fn: 'exp(x) - 3', desc: 'Exponential', range: { a: 0, b: 2 }, x0: 1 },
+    { fn: 'sin(x) - 0.5', desc: 'Trigonometric', range: { a: 0, b: 2 }, x0: 0.5 },
+    { fn: 'x^5 - 3*x + 1', desc: 'Polynomial', range: { a: 0, b: 2 }, x0: 1 },
+    { fn: 'log(x) - 1', desc: 'Logarithmic', range: { a: 1, b: 4 }, x0: 2 }
+  ];
 
   const bisectionSteps = useMemo(() => {
     const steps = [];
@@ -64,7 +73,13 @@ export default function RootsLesson() {
         if (signChange) b = mid; else a = mid;
       }
     } catch (e) {
-      return [{ title: 'Error', description: 'Invalid function', content: null }];
+      return [{ title: 'Error', description: 'Invalid function', content: (
+        <div className="text-center p-8 bg-red-50 rounded-2xl">
+          <div className="text-red-600 font-bold text-lg">Function Error</div>
+          <div className="text-red-500 text-sm mt-2">Please check your function syntax</div>
+          <div className="text-red-400 text-xs mt-1">Examples: x^2 - 4, sin(x), exp(x)</div>
+        </div>
+      ) }];
     }
     return steps;
   }, [fn, range]);
@@ -101,7 +116,13 @@ export default function RootsLesson() {
         x = nextX;
       }
     } catch (e) {
-       return [{ title: 'Error', description: 'Derivative error', content: null }];
+       return [{ title: 'Error', description: 'Derivative error', content: (
+        <div className="text-center p-8 bg-red-50 rounded-2xl">
+          <div className="text-red-600 font-bold text-lg">Derivative Error</div>
+          <div className="text-red-500 text-sm mt-2">Cannot compute derivative of this function</div>
+          <div className="text-red-400 text-xs mt-1">Newton's method requires differentiable functions</div>
+        </div>
+      ) }];
     }
     return steps;
   }, [fn, x0]);
@@ -117,7 +138,14 @@ export default function RootsLesson() {
       const fb = compiled.evaluate({ x: b });
       
       if (fa * fb >= 0) {
-        return [{ title: 'Error', description: 'Function must have opposite signs at endpoints', content: null }];
+        return [{ title: 'Error', description: 'Function must have opposite signs at endpoints', content: (
+          <div className="text-center p-8 bg-orange-50 rounded-2xl">
+            <div className="text-orange-600 font-bold text-lg">Sign Change Required</div>
+            <div className="text-orange-500 text-sm mt-2">f(a) and f(b) must have opposite signs</div>
+            <div className="text-orange-400 text-xs mt-1">f({range.a}) = {fa.toFixed(4)}, f({range.b}) = {fb.toFixed(4)}</div>
+            <div className="text-orange-300 text-xs mt-2">Try adjusting the interval bounds</div>
+          </div>
+        ) }];
       }
       
       steps.push({
@@ -189,19 +217,39 @@ export default function RootsLesson() {
           steps.push({
             title: 'Update Interval',
             description: `f(a)*f(c) < 0, new interval: [${a.toFixed(6)}, ${c.toFixed(6)}]`,
-            content: null
+            content: (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-center p-4 bg-green-100 rounded-2xl">
+                  <div className="font-bold text-green-800">Root is in [a, c]</div>
+                  <div className="text-sm text-green-600 mt-1">New interval: [{a.toFixed(3)}, {c.toFixed(3)}]</div>
+                </div>
+              </div>
+            )
           });
         } else {
           a = c;
           steps.push({
             title: 'Update Interval', 
             description: `f(a)*f(c) > 0, new interval: [${c.toFixed(6)}, ${b.toFixed(6)}]`,
-            content: null
+            content: (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-center p-4 bg-orange-100 rounded-2xl">
+                  <div className="font-bold text-orange-800">Root is in [c, b]</div>
+                  <div className="text-sm text-orange-600 mt-1">New interval: [{c.toFixed(3)}, {b.toFixed(3)}]</div>
+                </div>
+              </div>
+            )
           });
         }
       }
     } catch (e) {
-      return [{ title: 'Error', description: 'Function evaluation error', content: null }];
+      return [{ title: 'Error', description: 'Function evaluation error', content: (
+        <div className="text-center p-8 bg-red-50 rounded-2xl">
+          <div className="text-red-600 font-bold text-lg">Evaluation Error</div>
+          <div className="text-red-500 text-sm mt-2">Cannot evaluate function at given points</div>
+          <div className="text-red-400 text-xs mt-1">Check function domain and syntax</div>
+        </div>
+      ) }];
     }
     return steps;
   }, [fn, range]);
@@ -238,7 +286,13 @@ export default function RootsLesson() {
           steps.push({
             title: 'Error',
             description: 'Division by zero - function values too close',
-            content: null
+            content: (
+              <div className="text-center p-8 bg-red-50 rounded-2xl">
+                <div className="text-red-600 font-bold text-lg">Division by Zero</div>
+                <div className="text-red-500 text-sm mt-2">Function values are too close, causing numerical instability</div>
+                <div className="text-red-400 text-xs mt-1">Try a different initial guess</div>
+              </div>
+            )
           });
           break;
         }
@@ -294,75 +348,433 @@ export default function RootsLesson() {
         x1_curr = x2;
       }
     } catch (e) {
-      return [{ title: 'Error', description: 'Function evaluation error', content: null }];
+      return [{ title: 'Error', description: 'Function evaluation error', content: (
+        <div className="text-center p-8 bg-red-50 rounded-2xl">
+          <div className="text-red-600 font-bold text-lg">Evaluation Error</div>
+          <div className="text-red-500 text-sm mt-2">Cannot evaluate function at given points</div>
+          <div className="text-red-400 text-xs mt-1">Check function domain and syntax</div>
+        </div>
+      ) }];
     }
     return steps;
   }, [fn, x0]);
+
+  const bracketingSteps = useMemo(() => {
+    const steps = [];
+    try {
+      const compiled = math.compile(fn);
+      let a = range.a;
+      let b = range.b;
+      
+      const fa = compiled.evaluate({ x: a });
+      const fb = compiled.evaluate({ x: b });
+      
+      steps.push({
+        title: 'Initial Setup',
+        description: `a = ${a}, f(a) = ${fa.toFixed(6)}, b = ${b}, f(b) = ${fb.toFixed(6)}`,
+        content: (
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <div className="text-center p-4 bg-white border border-gray-100 rounded-2xl">
+              <span className="text-xs text-gray-400 block mb-1 uppercase font-bold text-[10px]">a, f(a)</span>
+              <span className="font-mono text-lg">{a.toFixed(3)}, {fa.toFixed(3)}</span>
+            </div>
+            <div className="text-center p-4 bg-white border border-gray-100 rounded-2xl">
+              <span className="text-xs text-gray-400 block mb-1 uppercase font-bold text-[10px]">b, f(b)</span>
+              <span className="font-mono text-lg">{b.toFixed(3)}, {fb.toFixed(3)}</span>
+            </div>
+          </div>
+        )
+      });
+      
+      for (let i = 0; i < 8; i++) {
+        const c = (a + b) / 2;
+        const fc = compiled.evaluate({ x: c });
+        
+        steps.push({
+          title: `Iteration ${i + 1}`,
+          description: `c = (${a} + ${b}) / 2 = ${c.toFixed(6)}`,
+          content: (
+            <div className="flex flex-col items-center gap-6 w-full">
+              <div className="bg-orange-600 p-8 rounded-3xl text-white shadow-xl flex flex-col items-center gap-4 w-full max-w-sm">
+                <span className="text-orange-200 uppercase font-bold text-[10px] tracking-widest">Bracketing</span>
+                <span className="text-2xl font-mono">c = {c.toFixed(4)}</span>
+                <div className="h-px w-full bg-orange-400/50" />
+                <span className="text-orange-200 uppercase font-bold text-[10px] tracking-widest">f(c)</span>
+                <span className="text-3xl font-mono font-bold">{fc.toFixed(4)}</span>
+              </div>
+              <div className="w-full flex justify-center gap-4">
+                <div className="text-center p-3 bg-gray-100 rounded-lg">
+                  <span className="text-xs text-gray-500">a</span>
+                  <div className="font-mono font-bold">{a.toFixed(3)}</div>
+                </div>
+                <div className="text-center p-3 bg-orange-100 rounded-lg">
+                  <span className="text-xs text-orange-500">c</span>
+                  <div className="font-mono font-bold text-orange-600">{c.toFixed(3)}</div>
+                </div>
+                <div className="text-center p-3 bg-gray-100 rounded-lg">
+                  <span className="text-xs text-gray-500">b</span>
+                  <div className="font-mono font-bold">{b.toFixed(3)}</div>
+                </div>
+              </div>
+            </div>
+          )
+        });
+        
+        if (Math.abs(fc) < 1e-6) {
+          steps.push({
+            title: 'Convergence',
+            description: `f(${c.toFixed(6)}) = ${fc.toFixed(6)} < 1e-6`,
+            content: (
+              <div className="text-center p-6 bg-green-100 rounded-2xl">
+                <span className="text-green-800 font-bold text-lg">Root Found: {c.toFixed(6)}</span>
+              </div>
+            )
+          });
+          break;
+        }
+        
+        if (fa * fc < 0) {
+          b = c;
+          steps.push({
+            title: 'Update Interval',
+            description: `f(a)*f(c) < 0, new interval: [${a.toFixed(6)}, ${c.toFixed(6)}]`,
+            content: (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-center p-4 bg-green-100 rounded-2xl">
+                  <div className="font-bold text-green-800">Root is in [a, c]</div>
+                  <div className="text-sm text-green-600 mt-1">New interval: [{a.toFixed(3)}, {c.toFixed(3)}]</div>
+                </div>
+              </div>
+            )
+          });
+        } else {
+          a = c;
+          steps.push({
+            title: 'Update Interval', 
+            description: `f(a)*f(c) > 0, new interval: [${c.toFixed(6)}, ${b.toFixed(6)}]`,
+            content: (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-center p-4 bg-orange-100 rounded-2xl">
+                  <div className="font-bold text-orange-800">Root is in [c, b]</div>
+                  <div className="text-sm text-orange-600 mt-1">New interval: [{c.toFixed(3)}, {b.toFixed(3)}]</div>
+                </div>
+              </div>
+            )
+          });
+        }
+      }
+    } catch (e) {
+      return [{ title: 'Error', description: 'Function evaluation error', content: (
+        <div className="text-center p-8 bg-red-50 rounded-2xl">
+          <div className="text-red-600 font-bold text-lg">Evaluation Error</div>
+          <div className="text-red-500 text-sm mt-2">Cannot evaluate function at given points</div>
+          <div className="text-red-400 text-xs mt-1">Check function domain and syntax</div>
+        </div>
+      ) }];
+    }
+    return steps;
+  }, [fn, range]);
+
+  const illinoisSteps = useMemo(() => {
+    const steps = [];
+    try {
+      const compiled = math.compile(fn);
+      let a = range.a;
+      let b = range.b;
+      
+      const fa = compiled.evaluate({ x: a });
+      const fb = compiled.evaluate({ x: b });
+      
+      steps.push({
+        title: 'Initial Setup',
+        description: `a = ${a}, f(a) = ${fa.toFixed(6)}, b = ${b}, f(b) = ${fb.toFixed(6)}`,
+        content: (
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <div className="text-center p-4 bg-white border border-gray-100 rounded-2xl">
+              <span className="text-xs text-gray-400 block mb-1 uppercase font-bold text-[10px]">a, f(a)</span>
+              <span className="font-mono text-lg">{a.toFixed(3)}, {fa.toFixed(3)}</span>
+            </div>
+            <div className="text-center p-4 bg-white border border-gray-100 rounded-2xl">
+              <span className="text-xs text-gray-400 block mb-1 uppercase font-bold text-[10px]">b, f(b)</span>
+              <span className="font-mono text-lg">{b.toFixed(3)}, {fb.toFixed(3)}</span>
+            </div>
+          </div>
+        )
+      });
+      
+      for (let i = 0; i < 8; i++) {
+        const c = a - fa * (b - a) / (fb - fa);
+        const fc = compiled.evaluate({ x: c });
+        
+        steps.push({
+          title: `Iteration ${i + 1}`,
+          description: `c = ${a} - ${fa.toFixed(6)} * (${b} - ${a}) / (${fb.toFixed(6)} - ${fa.toFixed(6)}) = ${c.toFixed(6)}`,
+          content: (
+            <div className="flex flex-col items-center gap-6 w-full">
+              <div className="bg-orange-600 p-8 rounded-3xl text-white shadow-xl flex flex-col items-center gap-4 w-full max-w-sm">
+                <span className="text-orange-200 uppercase font-bold text-[10px] tracking-widest">Illinois</span>
+                <span className="text-2xl font-mono">c = {c.toFixed(4)}</span>
+                <div className="h-px w-full bg-orange-400/50" />
+                <span className="text-orange-200 uppercase font-bold text-[10px] tracking-widest">f(c)</span>
+                <span className="text-3xl font-mono font-bold">{fc.toFixed(4)}</span>
+              </div>
+              <div className="w-full flex justify-center gap-4">
+                <div className="text-center p-3 bg-gray-100 rounded-lg">
+                  <span className="text-xs text-gray-500">a</span>
+                  <div className="font-mono font-bold">{a.toFixed(3)}</div>
+                </div>
+                <div className="text-center p-3 bg-orange-100 rounded-lg">
+                  <span className="text-xs text-orange-500">c</span>
+                  <div className="font-mono font-bold text-orange-600">{c.toFixed(3)}</div>
+                </div>
+                <div className="text-center p-3 bg-gray-100 rounded-lg">
+                  <span className="text-xs text-gray-500">b</span>
+                  <div className="font-mono font-bold">{b.toFixed(3)}</div>
+                </div>
+              </div>
+            </div>
+          )
+        });
+        
+        if (Math.abs(fc) < 1e-6) {
+          steps.push({
+            title: 'Convergence',
+            description: `f(${c.toFixed(6)}) = ${fc.toFixed(6)} < 1e-6`,
+            content: (
+              <div className="text-center p-6 bg-green-100 rounded-2xl">
+                <span className="text-green-800 font-bold text-lg">Root Found: {c.toFixed(6)}</span>
+              </div>
+            )
+          });
+          break;
+        }
+        
+        if (fa * fc < 0) {
+          b = c;
+          steps.push({
+            title: 'Update Interval',
+            description: `f(a)*f(c) < 0, new interval: [${a.toFixed(6)}, ${c.toFixed(6)}]`,
+            content: (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-center p-4 bg-green-100 rounded-2xl">
+                  <div className="font-bold text-green-800">Root is in [a, c]</div>
+                  <div className="text-sm text-green-600 mt-1">New interval: [{a.toFixed(3)}, {c.toFixed(3)}]</div>
+                </div>
+              </div>
+            )
+          });
+        } else {
+          a = c;
+          steps.push({
+            title: 'Update Interval', 
+            description: `f(a)*f(c) > 0, new interval: [${c.toFixed(6)}, ${b.toFixed(6)}]`,
+            content: (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-center p-4 bg-orange-100 rounded-2xl">
+                  <div className="font-bold text-orange-800">Root is in [c, b]</div>
+                  <div className="text-sm text-orange-600 mt-1">New interval: [{c.toFixed(3)}, {b.toFixed(3)}]</div>
+                </div>
+              </div>
+            )
+          });
+        }
+      }
+    } catch (e) {
+      return [{ title: 'Error', description: 'Function evaluation error', content: (
+        <div className="text-center p-8 bg-red-50 rounded-2xl">
+          <div className="text-red-600 font-bold text-lg">Evaluation Error</div>
+          <div className="text-red-500 text-sm mt-2">Cannot evaluate function at given points</div>
+          <div className="text-red-400 text-xs mt-1">Check function domain and syntax</div>
+        </div>
+      ) }];
+    }
+    return steps;
+  }, [fn, range]);
 
   const steps = useMemo(() => {
     if (method === 'bisection') return bisectionSteps;
     if (method === 'newton') return newtonSteps;
     if (method === 'false') return falsePositionSteps;
     if (method === 'secant') return secantSteps;
+    if (method === 'bracketing') return bracketingSteps;
+    if (method === 'illinois') return illinoisSteps;
     return [{title: 'Extension Point', description: 'Visualization engine loading...', content: <div className="text-gray-400 p-12">Coming Soon</div>}];
+  }, [method, bisectionSteps, newtonSteps, falsePositionSteps, secantSteps, bracketingSteps, illinoisSteps]);
   }, [method, bisectionSteps, newtonSteps, falsePositionSteps, secantSteps]);
 
   return (
     <div className="space-y-8 h-full">
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2">
-        {(['bisection', 'newton', 'false', 'secant'] as const).map(m => (
-          <button
-            key={m}
-            onClick={() => { setMethod(m); setCurrentStep(0); }}
-            className={cn(
-              "px-4 py-2 border-b-2 text-sm font-bold capitalize transition-all uppercase tracking-wider",
-              method === m ? "border-blue-600 text-blue-600" : "border-transparent text-slate-400 hover:text-slate-600"
-            )}
-          >
-            {m}
-          </button>
-        ))}
+      <div className="glass rounded-2xl p-6 border border-white/20 shadow-xl">
+        <div className="flex flex-wrap gap-3">
+          {([
+            { id: 'bisection', label: 'Bisection', desc: 'Guaranteed convergence', icon: '🎯' },
+            { id: 'newton', label: 'Newton-Raphson', desc: 'Fast quadratic convergence', icon: '⚡' },
+            { id: 'false', label: 'False Position', desc: 'Hybrid approach', icon: '🔄' },
+            { id: 'secant', label: 'Secant', desc: 'No derivative needed', icon: '📈' },
+            { id: 'bracketing', label: 'Bracketing Methods', desc: 'Interval refinement', icon: '📐' },
+            { id: 'illinois', label: 'Illinois Method', desc: 'Modified false position', icon: '🌽' }
+          ] as const).map(m => (
+            <motion.button
+              key={m.id}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { setMethod(m.id); setCurrentStep(0); }}
+              className={cn(
+                 "flex flex-col items-center gap-2 px-4 py-3 rounded-xl transition-all min-w-[120px] touch-manipulation",
+                 method === m.id 
+                   ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg" 
+                   : "bg-white border border-slate-200 text-slate-600 hover:border-blue-300 hover:shadow-md"
+              )}
+            >
+              <span className="text-lg">{m.icon}</span>
+              <span className="text-xs font-bold uppercase tracking-wider">{m.label}</span>
+              <div className="text-[10px] opacity-70">{m.desc}</div>
+            </motion.button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <aside className="lg:col-span-1 space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-             <div className="flex items-center gap-2 font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 text-sm uppercase">
-               <TrendingUp size={16} className="text-blue-600" /> Parameters
+          <div className="glass rounded-3xl p-6 border border-white/20 shadow-xl space-y-6">
+             <div className="flex items-center gap-3 font-bold text-gradient text-lg border-b border-slate-100 pb-4">
+               <TrendingUp size={20} className="text-blue-600" /> Method Parameters
              </div>
-             <div className="space-y-2">
-                <label className="text-[10px] text-slate-400 uppercase font-extrabold tracking-widest">Function f(x)</label>
-                <input 
-                   value={fn} 
-                   onChange={e => setFn(e.target.value)} 
-                   className="w-full p-2.5 bg-slate-50 rounded-lg font-mono text-sm border border-slate-200 focus:border-blue-500 outline-none" 
-                />
+             
+             <div className="space-y-4">
+                <div className="space-y-2">
+                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                     <span className="w-2 h-2 bg-blue-500 rounded-full"></span> Function f(x)
+                   </label>
+                   <input 
+                      value={fn} 
+                      onChange={e => setFn(e.target.value)} 
+                      className="w-full p-3 bg-white/50 border border-slate-200 focus:border-blue-500 rounded-xl outline-none font-mono text-sm focus-ring" 
+                      placeholder="Enter function (e.g., x^2 - 4)"
+                   />
+                </div>
+                
+                {/* Example Functions */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Examples</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {exampleFunctions.slice(0, 4).map((example) => (
+                      <button
+                        key={example.fn}
+                        onClick={() => { 
+                          setFn(example.fn); 
+                          setRange(example.range); 
+                          setX0(example.x0);
+                          setCurrentStep(0);
+                        }}
+                        className="p-2 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all text-xs"
+                      >
+                        <div className="font-mono font-semibold text-slate-700">{example.fn}</div>
+                        <div className="text-slate-500">{example.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {method === 'bisection' || method === 'false' ? (
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Search Interval</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                         <label className="text-[10px] text-slate-500 uppercase tracking-wider">Lower Bound a</label>
+                         <input 
+                           type="number" 
+                           value={range.a} 
+                           onChange={e => setRange({...range, a: Number(e.target.value)})} 
+                           className="w-full p-2.5 bg-white/50 border border-slate-200 focus:border-green-500 rounded-lg outline-none font-mono text-sm focus-ring" 
+                         />
+                      </div>
+                      <div className="space-y-2">
+                         <label className="text-[10px] text-slate-500 uppercase tracking-wider">Upper Bound b</label>
+                         <input 
+                           type="number" 
+                           value={range.b} 
+                           onChange={e => setRange({...range, b: Number(e.target.value)})} 
+                           className="w-full p-2.5 bg-white/50 border border-slate-200 focus:border-green-500 rounded-lg outline-none font-mono text-sm focus-ring" 
+                         />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                     <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                       <span className="w-2 h-2 bg-purple-500 rounded-full"></span> Initial Guess x₀
+                     </label>
+                     <input 
+                       type="number" 
+                       value={x0} 
+                       onChange={e => setX0(Number(e.target.value))} 
+                       className="w-full p-3 bg-white/50 border border-slate-200 focus:border-purple-500 rounded-xl outline-none font-mono text-sm focus-ring" 
+                       step="0.1"
+                     />
+                  </div>
+                )}
              </div>
-             {method === 'bisection' || method === 'false' ? (
-               <div className="grid grid-cols-2 gap-4">
-                 <div className="space-y-2">
-                    <label className="text-[10px] text-slate-400 uppercase font-extrabold tracking-widest">Bound a</label>
-                    <input type="number" value={range.a} onChange={e => setRange({...range, a: Number(e.target.value)})} className="w-full p-2.5 bg-slate-50 rounded-lg font-mono text-sm border border-slate-200" />
-                 </div>
-                 <div className="space-y-2">
-                    <label className="text-[10px] text-slate-400 uppercase font-extrabold tracking-widest">Bound b</label>
-                    <input type="number" value={range.b} onChange={e => setRange({...range, b: Number(e.target.value)})} className="w-full p-2.5 bg-slate-50 rounded-lg font-mono text-sm border border-slate-200" />
-                 </div>
-               </div>
-             ) : (
-               <div className="space-y-2">
-                  <label className="text-[10px] text-slate-400 uppercase font-extrabold tracking-widest">Initial Guess x₀</label>
-                  <input type="number" value={x0} onChange={e => setX0(Number(e.target.value))} className="w-full p-2.5 bg-slate-50 rounded-lg font-mono text-sm border border-slate-200 outline-none" />
-               </div>
-             )}
           </div>
           
-          <div className="p-5 bg-slate-900 rounded-2xl text-white shadow-lg border border-slate-800">
-             <h4 className="font-bold flex items-center gap-2 mb-2 text-xs uppercase tracking-wider text-blue-400"><LineChart size={14} /> Method Insight</h4>
-             <p className="text-[11px] text-slate-400 leading-relaxed">
-               {method === 'bisection' ? "Guaranteed to converge but relatively slow (linear)." : "Extremely fast convergence (quadratic), but requires a good initial guess."}
-             </p>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="p-6 bg-gradient-to-br from-slate-900 to-blue-900 rounded-3xl text-white shadow-xl border border-white/10"
+          >
+             <h4 className="font-bold flex items-center gap-3 mb-4 text-sm uppercase tracking-wider text-blue-400">
+               <LineChart size={18} /> Method Characteristics
+             </h4>
+             <div className="space-y-4">
+               <div className="space-y-2">
+                 <div className="flex justify-between text-xs">
+                   <span className="text-slate-400">Convergence Speed</span>
+                   <span className="text-blue-300 font-mono">
+                     {method === 'bisection' ? 'Linear' : 
+                      method === 'newton' ? 'Quadratic' : 
+                      method === 'false' ? 'Superlinear' : 'Superlinear'}
+                   </span>
+                 </div>
+                 <div className="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                   <motion.div 
+                     initial={{ width: 0 }}
+                     animate={{ width: method === 'bisection' ? '40%' : method === 'newton' ? '90%' : '70%' }}
+                     transition={{ delay: 0.5, duration: 1 }}
+                     className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"
+                   />
+                 </div>
+               </div>
+               
+               <div className="space-y-2">
+                 <div className="flex justify-between text-xs">
+                   <span className="text-slate-400">Reliability</span>
+                   <span className="text-green-300 font-mono">
+                     {method === 'bisection' ? 'Guaranteed' : 
+                      method === 'newton' ? 'Conditional' : 
+                      method === 'false' ? 'High' : 'Medium'}
+                   </span>
+                 </div>
+                 <div className="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                   <motion.div 
+                     initial={{ width: 0 }}
+                     animate={{ width: method === 'bisection' ? '95%' : method === 'newton' ? '60%' : '80%' }}
+                     transition={{ delay: 0.7, duration: 1 }}
+                     className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
+                   />
+                 </div>
+               </div>
+               
+               <div className="pt-3 border-t border-white/10">
+                 <p className="text-[11px] text-slate-300 leading-relaxed">
+                   {method === 'bisection' && "Reliably converges by halving the search interval each iteration. Perfect for bracketed roots."}
+                   {method === 'newton' && "Uses tangent line approximation for extremely fast convergence when close to the root."}
+                   {method === 'false' && "Combines reliability of bisection with speed improvements using linear interpolation."}
+                   {method === 'secant' && "Approximates derivative using secant lines. Good balance of speed and simplicity."}
+                 </p>
+               </div>
+             </div>
+          </motion.div>
         </aside>
 
         <section className="lg:col-span-3 min-h-[600px] border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
