@@ -1,0 +1,6 @@
+{
+  "name": "Numera - Numerical Methods Interactive Reviewer",
+  "description": "A high-fidelity, interactive reviewer for Numerical Methods featuring step-by-step animations for Taylor series, matrix operations, and root-finding methods.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
