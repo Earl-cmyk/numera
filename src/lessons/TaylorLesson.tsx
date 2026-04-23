@@ -46,7 +46,9 @@ export default function TaylorLesson() {
             try {
               const val = currentDeriv.compile().evaluate({ x: x0 });
               const fact = math.factorial(j);
-              approx += (val / fact) * Math.pow(x - x0, j);
+              if (!isNaN(val) && isFinite(val)) {
+                approx += (val / fact) * Math.pow(x - x0, j);
+              }
               currentDeriv = math.derivative(currentDeriv, 'x');
             } catch (e) {
               // Stop if derivative calculation fails
@@ -100,6 +102,20 @@ export default function TaylorLesson() {
   }, [fn, x0, order]);
 
   const steps = useMemo(() => {
+    if (taylorExpansion.length === 0) {
+      return [{
+        title: 'Function Analysis',
+        description: 'Unable to calculate Taylor series expansion for this function.',
+        content: (
+          <div className="text-center p-8 bg-yellow-50 rounded-2xl border-2 border-yellow-200">
+            <div className="text-yellow-800 font-bold text-lg mb-4">Function Not Supported</div>
+            <div className="text-yellow-600 text-sm">This function may not be suitable for Taylor series expansion or contains unsupported operations.</div>
+            <div className="text-yellow-500 text-xs mt-2">Try simpler functions like sin(x), cos(x), exp(x), or polynomials</div>
+          </div>
+        )
+      }];
+    }
+    
     return taylorExpansion.map((t, idx) => ({
       title: `Term of Order ${t.order}`,
       description: idx === 0 
@@ -115,7 +131,9 @@ export default function TaylorLesson() {
               </div>
               <div className="p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
                 <span className="text-xs text-gray-400 uppercase font-bold block mb-1">Value at x₀</span>
-                <code className="text-gray-900 font-mono text-lg">{t.valueAtX0.toFixed(4)}</code>
+                <code className="text-gray-900 font-mono text-lg">
+                {isNaN(t.valueAtX0) || !isFinite(t.valueAtX0) ? 'N/A' : t.valueAtX0.toFixed(4)}
+              </code>
               </div>
             </div>
             

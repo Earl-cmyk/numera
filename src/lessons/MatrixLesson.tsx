@@ -221,7 +221,7 @@ export default function MatrixLesson() {
 
     return allEl.map(([r,c]) => ({
       title: `Adding Entry [${r}, ${c}]`,
-      description: `Target entries matched: ${matrix[r][c]} + ${matrix[r][c]} = ${matrix[r][c] + matrix[r][c]}`,
+      description: `Target entries matched: ${matrix[r][c]} + ${matrix[r][c]} = ${matrix[r][c] + matrix[r][c]]}`,
       content: (
         <MatrixActionDisplay 
           m1={matrix} 
