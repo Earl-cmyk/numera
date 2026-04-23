@@ -600,7 +600,6 @@ export default function RootsLesson() {
     if (method === 'illinois') return illinoisSteps;
     return [{title: 'Extension Point', description: 'Visualization engine loading...', content: <div className="text-gray-400 p-12">Coming Soon</div>}];
   }, [method, bisectionSteps, newtonSteps, falsePositionSteps, secantSteps, bracketingSteps, illinoisSteps]);
-  }, [method, bisectionSteps, newtonSteps, falsePositionSteps, secantSteps]);
 
   return (
     <div className="space-y-8 h-full">

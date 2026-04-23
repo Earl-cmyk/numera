@@ -1,6 +1,6 @@
 
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { Grid3X3, ArrowRightLeft, Square, Binary, Calculator } from 'lucide-react';
 import { cn } from '../lib/utils';
 import StepViewer from '../components/StepViewer';
@@ -264,31 +264,20 @@ export default function MatrixLesson() {
     
     if (n === 2) {
       det = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
-    } else if (n === 3) {
-      det = matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[0][1] * matrix[2][2]) + 
-            matrix[0][2] * (matrix[1][0] * matrix[2][2] - matrix[0][2] * matrix[1][2]) - 
-            matrix[0][1] * (matrix[1][0] * matrix[2][2]) + 
-            matrix[0][2] * (matrix[1][0] * matrix[2][2]);
-    }
-    
-    steps.push({
-      title: 'Step 1: Calculate Determinant',
-      description: `det(A) = ${det.toFixed(4)}`,
-      content: (
-        <div className="space-y-4">
-          <div className="bg-blue-50 rounded-xl p-4">
-            <h4 className="font-bold text-blue-800 mb-3">Determinant Calculation</h4>
-            <div className="text-sm text-blue-600 space-y-2">
-              {n === 2 && (
+      
+      steps.push({
+        title: 'Step 1: Calculate Determinant',
+        description: `det(A) = ${det.toFixed(4)}`,
+        content: (
+          <div className="space-y-4">
+            <div className="bg-blue-50 rounded-xl p-4">
+              <h4 className="font-bold text-blue-800 mb-3">Determinant Calculation</h4>
+              <div className="text-sm text-blue-600 space-y-2">
                 <div>• det(A) = a₁₁ × a₂₂ - a₁₂ × a₂₁</div>
                 <div>• det(A) = ${matrix[0][0]} × ${matrix[1][1]} - ${matrix[0][1]} × ${matrix[1][0]}</div>
-              )}
-              {n === 3 && (
-                <div>• Using rule of Sarrus for 3×3</div>
-                <div>• det(A) = ${matrix[0][0]}(${matrix[1][1]}${matrix[2][2]}) + ${matrix[0][1]}(${matrix[1][2]}${matrix[2][0]}) - ${matrix[0][2]}(${matrix[1][0]}${matrix[2][1]}${matrix[2][0]})</div>
-              )}
-              <div className="text-center">
-                <MathRenderer display>{`det(A) = ${det.toFixed(4)}`}</MathRenderer>
+                <div className="text-center">
+                  <MathRenderer display>{`det(A) = ${det.toFixed(4)}`}</MathRenderer>
+                </div>
               </div>
             </div>
           </div>
@@ -321,7 +310,24 @@ export default function MatrixLesson() {
           />
         )
       });
-    } else if (size === 4) {
+    } else if (n === 3) {
+      det = matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) - 
+            matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) + 
+            matrix[0][2] * (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]);
+      
+      steps.push({
+        title: '3x3 Matrix Inverse',
+        description: 'For 3×3 matrices, we use cofactor method or Gaussian elimination',
+        content: (
+          <div className="space-y-4">
+            <MatrixGrid data={matrix} highlights={{ color: 'bg-blue-100' }} />
+            <div className="text-center text-gray-600">
+              <div>Using cofactor method: A⁻¹ = (1/det(A)) × adj(A)</div>
+            </div>
+          </div>
+        )
+      });
+    } else if (n === 4) {
       steps.push({
         title: '4x4 Matrix Inverse',
         description: 'For 4×4 matrices, we use Gaussian elimination on the augmented matrix [A|I₄]',
@@ -342,27 +348,27 @@ export default function MatrixLesson() {
         title: 'Row Reduction Steps',
         description: 'Perform elementary row operations to transform A to I₄',
         content: (
-            <div className="space-y-3 text-sm text-gray-600">
-              <div>1. Create zeros below first pivot (<MathRenderer>{`${matrix[0][0]}`}</MathRenderer>)</div>
-              <div>2. Create zeros below second pivot (<MathRenderer>{`${matrix[1][1]}`}</MathRenderer>)</div>
-              <div>3. Create zeros below third pivot (<MathRenderer>{`${matrix[2][2]}`}</MathRenderer>)</div>
-              <div>4. Normalize all diagonal elements to 1</div>
-              <div>5. Create zeros above all pivots</div>
-            </div>
-          )
+          <div className="space-y-3 text-sm text-gray-600">
+            <div>1. Create zeros below first pivot (<MathRenderer>{`${matrix[0][0]}`}</MathRenderer>)</div>
+            <div>2. Create zeros below second pivot (<MathRenderer>{`${matrix[1][1]}`}</MathRenderer>)</div>
+            <div>3. Create zeros below third pivot (<MathRenderer>{`${matrix[2][2]}`}</MathRenderer>)</div>
+            <div>4. Normalize all diagonal elements to 1</div>
+            <div>5. Create zeros above all pivots</div>
+          </div>
+        )
       });
       
       steps.push({
         title: 'Final Result',
         description: 'The right side of the augmented matrix becomes A⁻¹',
         content: (
-            <div className="bg-green-50 p-4 rounded-lg text-center">
-              <div className="font-bold text-green-800">Inverse Matrix A⁻¹</div>
-              <div className="text-sm text-green-600 mt-2">
-                Contains 16 elements computed through row reduction
-              </div>
+          <div className="bg-green-50 p-4 rounded-lg text-center">
+            <div className="font-bold text-green-800">Inverse Matrix A⁻¹</div>
+            <div className="text-sm text-green-600 mt-2">
+              Contains 16 elements computed through row reduction
             </div>
-          )
+          </div>
+        )
       });
     } else {
       steps.push({
@@ -493,6 +499,11 @@ export default function MatrixLesson() {
         },
         {
           title: 'Gauss-Jordan Method',
+          description: 'Transform to reduced row-echelon form (RREF)',
+          content: (
+            <div className="space-y-2 text-sm text-gray-600">
+              <div>Transform augmented matrix to RREF form</div>
+              <div>Creates identity matrix on left, solution on right</div>
             </div>
           )
         },
@@ -531,7 +542,7 @@ export default function MatrixLesson() {
               <div className="bg-green-50 rounded-xl p-4">
                 <h4 className="font-bold text-green-800 mb-3">Step 4: Extract Solution</h4>
                 <div className="text-sm text-green-600">
-                  <MathRenderer>{`[x₁, x₂, x₃, x₄] = [${solution.join(', ')}]`}</MathRenderer>
+                  <MathRenderer>{`[x1, x2, x3, x4] = [${vector.join(', ')}]`}</MathRenderer>
                 </div>
               </div>
               

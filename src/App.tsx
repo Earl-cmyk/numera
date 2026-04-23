@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { 
   BookOpen, 
   Binary, 
@@ -295,38 +295,33 @@ export default function App() {
 
         {/* Content Viewport */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeLesson}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="h-full"
-            >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            key={activeLesson}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="w-full"
+          >
+            {renderContent()}
+          </motion.div>
         </div>
       </main>
 
       {/* Mobile Drawer (re-adapted for Professional theme) */}
-      <AnimatePresence>
-        {isSidebarOpen && (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isSidebarOpen ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] md:hidden"
+        onClick={() => setIsSidebarOpen(false)}
+      />
+      {isSidebarOpen && (
           <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSidebarOpen(false)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] md:hidden"
-            />
             <motion.div 
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 bottom-0 w-[280px] bg-slate-900 text-slate-300 z-[70] shadow-2xl flex flex-col md:hidden"
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="fixed left-0 top-0 h-full w-80 bg-slate-900 shadow-2xl z-[70] md:hidden overflow-y-auto"
             >
                <div className="p-6 border-b border-slate-800 flex items-center justify-between">
                 <span className="font-bold text-white">NumMethods</span>
@@ -361,7 +356,6 @@ export default function App() {
             </motion.div>
           </>
         )}
-      </AnimatePresence>
     </div>
   );
 

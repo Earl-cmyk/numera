@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 
 export function MatrixGrid({ 
@@ -32,7 +32,10 @@ export function MatrixGrid({
   }, [interactive, onCellClick]);
   
   return (
-    <div 
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
       className={cn(
         "grid gap-2 md:gap-3 p-4 md:p-5 border-l-4 border-r-4 border-slate-700 rounded-lg relative bg-white/50",
         "transition-all duration-300",
@@ -43,8 +46,7 @@ export function MatrixGrid({
         maxWidth: '100%'
       }}
     >
-      <AnimatePresence>
-        {data.map((row, r) => row.map((val, c) => {
+      {data.map((row, r) => row.map((val, c) => {
           const isRowHi = highlights?.rows?.includes(r);
           const isColHi = highlights?.cols?.includes(c);
           const isElHi = highlights?.elements?.some(([er, ec]) => er === r && ec === c);
@@ -106,8 +108,7 @@ export function MatrixGrid({
             </motion.div>
           );
         }))}
-      </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 

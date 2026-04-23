@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 
 interface AnimationLayerProps {
@@ -66,7 +66,11 @@ const AnimationLayer: React.FC<AnimationLayerProps> = ({
         </filter>
       </defs>
 
-      <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         {animations.map((animation) => {
           const { id, type, from, to, duration = 1, delay = 0, color = '#3b82f6', label } = animation;
           
@@ -230,7 +234,7 @@ const AnimationLayer: React.FC<AnimationLayerProps> = ({
           
           return null;
         })}
-      </AnimatePresence>
+      </motion.div>
     </svg>
   );
 };

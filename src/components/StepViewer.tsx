@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { ChevronRight, ChevronLeft, RefreshCcw, Info, Play, Pause, FastForward } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -99,18 +99,15 @@ export default function StepViewer({
             <div className="absolute inset-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:32px_32px] opacity-10" />
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-cyan-400/10 to-blue-400/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-1000" />
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 1.05, y: -20 }}
-                transition={{ duration: 0.4, ease: 'easeOut' }}
-                className="relative z-10 w-full h-full flex items-center justify-center p-4"
-              >
-                {steps[currentStep].content}
-              </motion.div>
-            </AnimatePresence>
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="w-full h-full"
+            >
+              {steps[currentStep].content}
+            </motion.div>
           </div>
 
           {/* Enhanced Controls Footer */}
@@ -233,15 +230,13 @@ export default function StepViewer({
            </h3>
            
            <div className="space-y-8">
-             <AnimatePresence mode="wait">
-               <motion.div
-                 key={currentStep}
-                 initial={{ opacity: 0, x: 20 }}
-                 animate={{ opacity: 1, x: 0 }}
-                 exit={{ opacity: 0, x: -20 }}
-                 transition={{ duration: 0.3 }}
-                 className="space-y-6"
-               >
+             <motion.div
+               key={currentStep}
+               initial={{ opacity: 0, x: 20 }}
+               animate={{ opacity: 1, x: 0 }}
+               transition={{ duration: 0.2 }}
+               className="flex flex-col gap-6"
+             >
                  <div className="relative pl-8">
                     <motion.div 
                       initial={{ scale: 0 }}
@@ -266,7 +261,6 @@ export default function StepViewer({
                    <RefreshCcw size={16} /> Reset Simulation
                  </motion.button>
                </motion.div>
-             </AnimatePresence>
              
              <motion.div 
                initial={{ opacity: 0 }}

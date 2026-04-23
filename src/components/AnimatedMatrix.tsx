@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 
 interface AnimatedMatrixProps {
@@ -154,9 +154,14 @@ export default function AnimatedMatrix({
     <div className="space-y-4">
       {/* Matrix display */}
       <div className="relative">
-        <AnimatePresence mode="wait">
+        <motion.div
+          key={effectiveIndex}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+        >
           {renderMatrix(currentMatrix, `matrix-${effectiveIndex}`)}
-        </AnimatePresence>
+        </motion.div>
         
         {/* Transition overlay */}
         {isTransitioning && (
