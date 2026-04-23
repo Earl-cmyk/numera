@@ -1,13 +1,13 @@
 
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { Grid3X3, ArrowRightLeft, Square, Binary, Calculator } from 'lucide-react';
+import { Grid3X3, ArrowRightLeft, Square, Binary, Calculator, Plus, Minus } from 'lucide-react';
 import { cn } from '../lib/utils';
 import StepViewer from '../components/StepViewer';
 import { MatrixGrid, MatrixActionDisplay } from '../components/MatrixOps';
 import MathRenderer from '../components/MathRenderer';
 
-type MatrixMode = 'det' | 'ops' | 'types' | 'inverse' | 'systems';
+type MatrixMode = 'det' | 'ops' | 'types' | 'inverse' | 'systems' | 'adjoint' | 'cofactor';
 
 export default function MatrixLesson() {
   const [mode, setMode] = useState<MatrixMode>('det');
@@ -677,6 +677,8 @@ export default function MatrixLesson() {
             { id: 'types', label: 'Matrix Types', icon: Grid3X3, desc: 'Explore different matrix types' },
             { id: 'inverse', label: 'Inverse', icon: ArrowRightLeft, desc: 'Compute matrix inverse' },
             { id: 'systems', label: 'Linear Systems', icon: Square, desc: 'Solve systems of equations' },
+            { id: 'adjoint', label: 'Adjoint', icon: Plus, desc: 'Calculate matrix adjoint' },
+            { id: 'cofactor', label: 'Cofactor', icon: Minus, desc: 'Calculate cofactor matrix' },
           ].map(m => (
             <motion.button
               key={m.id}

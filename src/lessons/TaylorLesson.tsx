@@ -41,15 +41,17 @@ export default function TaylorLesson() {
           
           // Calculate Taylor approximation
           let approx = 0;
+          let currentDeriv = math.parse(fn);
           for (let j = 0; j <= order; j++) {
-            const deriv = math.derivative(fn, 'x');
-            let currentDeriv = math.parse(fn);
-            for (let k = 0; k < j; k++) {
+            try {
+              const val = currentDeriv.compile().evaluate({ x: x0 });
+              const fact = math.factorial(j);
+              approx += (val / fact) * Math.pow(x - x0, j);
               currentDeriv = math.derivative(currentDeriv, 'x');
+            } catch (e) {
+              // Stop if derivative calculation fails
+              break;
             }
-            const val = currentDeriv.compile().evaluate({ x: x0 });
-            const fact = math.factorial(j);
-            approx += (val / fact) * Math.pow(x - x0, j);
           }
           approximation.push(approx);
         } catch {
@@ -71,22 +73,28 @@ export default function TaylorLesson() {
       let currentDeriv = parsed;
       
       for (let i = 0; i <= order; i++) {
-        const val = currentDeriv.compile().evaluate({ x: x0 });
-        const fact = math.factorial(i);
-        const coeff = val / fact;
-        
-        steps.push({
-          order: i,
-          derivative: currentDeriv.toString(),
-          valueAtX0: val,
-          coeff: coeff,
-          term: i === 0 ? coeff : `${coeff.toFixed(4)}(x - ${x0})^${i}`
-        });
-        
-        currentDeriv = math.derivative(currentDeriv, 'x');
+        try {
+          const val = currentDeriv.compile().evaluate({ x: x0 });
+          const fact = math.factorial(i);
+          const coeff = val / fact;
+          
+          steps.push({
+            order: i,
+            derivative: currentDeriv.toString(),
+            valueAtX0: val,
+            coeff: coeff,
+            term: i === 0 ? coeff.toString() : `${coeff.toFixed(4)}(x - ${x0})^${i}`
+          });
+          
+          currentDeriv = math.derivative(currentDeriv, 'x');
+        } catch (e) {
+          // Stop if derivative calculation fails
+          console.error(`Error calculating derivative for order ${i}:`, e);
+          break;
+        }
       }
     } catch (e) {
-      console.error(e);
+      console.error('Error in taylor expansion:', e);
     }
     return steps;
   }, [fn, x0, order]);
