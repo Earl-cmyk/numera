@@ -6,7 +6,7 @@ import { LineChart, Play, ChevronRight, TrendingUp } from 'lucide-react';
 import StepViewer from '../components/StepViewer';
 import { cn } from '../lib/utils';
 
-type RootMethod = 'bisection' | 'newton' | 'false' | 'secant';
+type RootMethod = 'bisection' | 'newton' | 'false' | 'secant' | 'bracketing' | 'illinois';
 
 export default function RootsLesson() {
   const [method, setMethod] = useState<RootMethod>('bisection');
@@ -598,7 +598,7 @@ export default function RootsLesson() {
     if (method === 'secant') return secantSteps;
     if (method === 'bracketing') return bracketingSteps;
     if (method === 'illinois') return illinoisSteps;
-    return [{title: 'Extension Point', description: 'Visualization engine loading...', content: <div className="text-gray-400 p-12">Coming Soon</div>}];
+    return bisectionSteps; // Default to bisection as fallback
   }, [method, bisectionSteps, newtonSteps, falsePositionSteps, secantSteps, bracketingSteps, illinoisSteps]);
 
   return (
